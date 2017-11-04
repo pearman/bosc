@@ -11,13 +11,13 @@ let Mem = {
   set: {
     args: { '0': 'key', '1': 'value' },
     _eval: (self, args, memory) => {
-      return _.set(_.last(memory), [args[0].value], args[1]);
+      return _.set(_.last(memory), [args[0]], args[1]);
     }
   },
   get: {
     args: { '0': 'key' },
     _eval: (self, args, memory) => {
-      return symInScope(args[0].value, memory);
+      return symInScope(args[0], memory);
     }
   }
 };

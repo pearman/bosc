@@ -59,6 +59,7 @@ function tableEval(table, memory) {
 function pearscriptEval(data) {
   let memory = [{ mem: Mem }];
   return _.reduce(data, (acc, table) => tableEval(table, memory), null);
+  console.log(memory);
 }
 
 module.exports = pearscriptEval;
