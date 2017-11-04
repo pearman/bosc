@@ -48,7 +48,7 @@ const PearScript = P.createLanguage({
   },
 
   symbol: () =>
-    P.regexp(/[+\-*/?:%a-zA-Z_-][a-zA-Z0-9_-]*/)
+    P.regexp(/[+\-*/.?:%a-zA-Z_-][a-zA-Z0-9_-]*/)
       .map(data => ({ type: 'symbol', data }))
       .desc('symbol'),
 

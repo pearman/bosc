@@ -1,16 +1,10 @@
-const util = require('util');
-const _ = require('lodash');
+const tableUtils = require('./tableUtils.js');
+const vm = require('./vm.js');
 
-const parser = require('./parser.js');
-const tableUtils = require('./tableUtils');
-const pearscriptEval = require('./vm.js');
-
-let text = `
-(1 + 2 + 4)
+let prog = `
+(local : bob { name 'Larry' age 6 })
+(bob . name + ' is ' + (18 - (bob . age)) + ' years from 18 years old' print)
 `;
 
-let ast = parser.tryParse(text);
-let tableArray = ast.map(table => tableUtils.astToTable(table));
-//tableUtils.prettyPrint(tableArray);
-
-tableUtils.prettyPrint(pearscriptEval(tableArray));
+let output = vm.eval(prog);
+//tableUtils.prettyPrint(output);
