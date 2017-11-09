@@ -36,9 +36,13 @@ let Number = {
     args: { '0': 'function' },
     _eval: (self, args, ns, tableEval) => {
       //console.log(ns.concat([{ [args[0].args[0]]: numberize(1) }]));
-      let output = _.times(self.value, i =>
-        tableEval(args[0], ns.concat([{ [args[0].args[0]]: numberize(i) }]))
-      );
+      let output = _.times(self.value, i => {
+        // console.log('ARG0', args);
+        return tableEval(
+          args[0],
+          ns.concat([{ [args[0].args[0]]: numberize(i) }])
+        );
+      });
       return tableUtils.arrayToTable(output);
     }
   }

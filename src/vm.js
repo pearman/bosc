@@ -2,10 +2,9 @@ const _ = require('lodash');
 const Table = require('./types/table.js');
 const tableUtils = require('./tableUtils.js');
 const argUtils = require('./argUtils.js');
-const parser = require('./parser.js');
-const astUtils = require('./astUtils');
+//const parser = require('./parser.js');
 
-function tableEval(table, ns) {
+function tableEval(table, ns, lazyExecute = true) {
   //console.log('TABLE EVAL ------');
   let index = 0;
   let curr = null;
@@ -23,6 +22,8 @@ function tableEval(table, ns) {
       if (_.isString(curr)) obj = argUtils.symInNamespace(curr, ns);
       else if (_.get(curr, ['_context']) === 'execute')
         obj = tableEval(curr, ns);
+      else if (lazyExecute && _.get(curr, ['_context'] === 'lazyExecute'))
+        obj = tableEval(curr, ns);
       else obj = curr;
       //console.log('SET OBJ', obj);
       state = 1;
@@ -30,6 +31,7 @@ function tableEval(table, ns) {
       if (state === 0.5) obj = retVal;
       method = curr;
       argsExpected = obj[curr].args;
+      //console.log(obj);
       argsNum = tableUtils.arrLength(obj[curr].args);
       //console.log('ARGS EXPECTED', argsNum);
       args = [];
@@ -76,11 +78,11 @@ function newLocal(withData = {}) {
   return local;
 }
 
-function pearscriptEval(str) {
-  let ast = parser.tryParse(str);
-  let data = ast.map(table => astUtils.astToTable(table));
-  let local = newLocal();
-  return _.reduce(data, (acc, table) => tableEval(table, [local]), null);
-}
+// function pearscriptEval(str) {
+//   let ast = parser.tryParse(str);
+//   console.log(ast);
+//   let local = newLocal();
+//   return tableEval(ast, [local]);
+// }
 
-module.exports = { eval: pearscriptEval };
+module.exports = { tableEval, newLocal };

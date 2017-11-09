@@ -4,6 +4,7 @@ const Number = require('./types/number.js');
 const String = require('./types/string.js');
 
 function astToTable(ast) {
+  if (_.isNil(ast)) return null;
   if (ast.type === 'list' || ast.type === 'execute') {
     let base = _.cloneDeep(Table);
     if (ast.type === 'execute') _.assign(base, { _context: 'execute' });
@@ -17,14 +18,19 @@ function astToTable(ast) {
     );
   }
   if (ast.type === 'method') {
-    return _.reduce(
+    let method = _.reduce(
       ast.data.slice(1),
       (acc, exp, index) => {
-        acc[index] = astToTable(exp);
+        acc[index] = setLazyExecute(astToTable(exp));
         return acc;
       },
-      _.merge({}, Table, { args: astToTable(ast.data[0]) })
+      _.merge({}, Table, {
+        args: astToTable(ast.data[0]),
+        _context: 'lazyExecute'
+      })
     );
+    //console.log('METHOD', method);
+    return method;
   }
   if (ast.type === 'map') {
     let keyValuePairs = [];
@@ -35,10 +41,10 @@ function astToTable(ast) {
     return _.reduce(
       keyValuePairs,
       (acc, [key, value]) => {
-        acc[key.data] = astToTable(value);
+        acc[key] = astToTable(value);
         return acc;
       },
-      _.merge({}, Table, { args: astToTable(ast.data[0]) })
+      _.merge({}, Table)
     );
   }
   if (ast.type === 'symbol') {
@@ -53,7 +59,24 @@ function astToTable(ast) {
   return ast;
 }
 
-module.exports = { astToTable };
+function setLazyExecute(table) {
+  if (!_.isObject(table)) return table;
+
+  if (_.get(table, '_context') === 'execute') table._context = 'lazyExecute';
+
+  let index = 0;
+  let curr;
+  while ((curr = table[index++])) {
+    if (_.get(curr, '_context') === 'execute') {
+      table[index - 1]['_context'] = 'lazyExecute';
+    }
+    setLazyExecute(table[index - 1]);
+  }
+
+  return table;
+}
+
+module.exports = { astToTable, setLazyExecute };
 
 function test() {
   let testMap = {

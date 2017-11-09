@@ -11,13 +11,21 @@ let Table = {
   '.': {
     args: { '0': 'key' },
     _eval: (self, args, ns) => {
-      return _.get(self, args[0], null);
+      //console.log(self);
+      //console.log(_.get(args[0], 'value', args[0]));
+      return _.get(self, _.get(args[0], 'value', args[0]), null);
+    }
+  },
+  ',': {
+    args: { '0': 'function' },
+    _eval: (self, args, ns) => {
+      return argUtils.symInNamespace(args[0], ns);
     }
   },
   print: {
     args: {},
     _eval: (self, args, ns) => {
-      if (self.value) console.log(self.value);
+      if (!_.isNil(self.value)) console.log(self.value);
       else console.log(self);
       return self;
     }
