@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const util = require('util');
 
-const Table = require('./types/table.js');
+const Table = require('../table.js');
 
 function arrayToTable(array) {
   return _.reduce(

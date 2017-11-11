@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const argUtils = require('../argUtils.js');
+const argUtils = require('./utils/argUtils.js');
 
 let Table = {
   ':': {

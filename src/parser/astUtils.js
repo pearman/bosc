@@ -1,7 +1,7 @@
 const _ = require('lodash');
-const Table = require('./types/table.js');
-const Number = require('./types/number.js');
-const String = require('./types/string.js');
+const Table = require('../types/table.js');
+const Number = require('../types/number.js');
+const String = require('../types/string.js');
 
 function astToTable(ast) {
   if (_.isNil(ast)) return null;

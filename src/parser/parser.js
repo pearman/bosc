@@ -1,39 +1,10 @@
 const P = require('parsimmon');
 const _ = require('lodash');
+
 const astUtils = require('./astUtils.js');
-const tableUtils = require('./tableUtils.js');
-const vm = require('./vm.js');
-
-function interpretEscapes(str) {
-  let escapes = {
-    b: '\b',
-    f: '\f',
-    n: '\n',
-    r: '\r',
-    t: '\t'
-  };
-  return str.replace(/\\(u[0-9a-fA-F]{4}|[^u])/, (_, escape) => {
-    let type = escape.charAt(0);
-    let hex = escape.slice(1);
-    if (type === 'u') {
-      return String.fromCharCode(parseInt(hex, 16));
-    }
-    if (escapes.hasOwnProperty(type)) {
-      return escapes[type];
-    }
-    return type;
-  });
-}
-
-let whitespace = P.regexp(/\s*/m);
-
-function token(parser) {
-  return parser.skip(whitespace);
-}
-
-function word(str) {
-  return P.string(str).thru(token);
-}
+const tableUtils = require('../types/utils/tableUtils.js');
+const parserUtils = require('./parserUtils.js');
+const vm = require('../vm.js');
 
 let local = vm.newLocal();
 const PearScript = P.createLanguage({
@@ -59,24 +30,27 @@ const PearScript = P.createLanguage({
       .desc('symbol'),
 
   string: () =>
-    token(P.regexp(/'((?:\\.|.)*?)'/, 1))
-      .map(interpretEscapes)
+    parserUtils
+      .token(P.regexp(/'((?:\\.|.)*?)'/, 1))
+      .map(parserUtils.interpretEscapes)
       .map(data => ({ type: 'string', data }))
       .map(astUtils.astToTable)
       .desc('string'),
 
   number: () =>
-    token(P.regexp(/-?(0|[1-9][0-9]*)([.][0-9]+)?([eE][+-]?[0-9]+)?/))
+    parserUtils
+      .token(P.regexp(/-?(0|[1-9][0-9]*)([.][0-9]+)?([eE][+-]?[0-9]+)?/))
       .map(Number)
       .map(data => ({ type: 'number', data }))
       .map(astUtils.astToTable)
       .desc('number'),
 
-  null: () => word('null').result({ type: 'null', _data: null }),
+  null: () => parserUtils.word('null').result({ type: 'null', _data: null }),
 
-  true: () => word('true').result({ type: 'boolean', _data: true }),
+  true: () => parserUtils.word('true').result({ type: 'boolean', _data: true }),
 
-  false: () => word('false').result({ type: 'boolean', _data: false }),
+  false: () =>
+    parserUtils.word('false').result({ type: 'boolean', _data: false }),
 
   execute: r =>
     r.expression

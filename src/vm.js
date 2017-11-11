@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const Table = require('./types/table.js');
-const tableUtils = require('./tableUtils.js');
-const argUtils = require('./argUtils.js');
+const tableUtils = require('./types/utils/tableUtils.js');
+const argUtils = require('./types/utils/argUtils.js');
 //const parser = require('./parser.js');
 
 function tableEval(table, ns, lazyExecute = true) {

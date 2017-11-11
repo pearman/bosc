@@ -1,5 +1,5 @@
-const tableUtils = require('./tableUtils.js');
-const parser = require('./parser.js');
+const tableUtils = require('./types/utils/tableUtils.js');
+const parser = require('./parser/parser.js');
 const vm = require('./vm.js');
 
 let prog = `
@@ -8,6 +8,7 @@ let prog = `
     x print
     , x * 2|))
 (list . 3 print)
+(4 + 4 / 2 * 3 print)
 `;
 
 let output = parser.tryParse(prog);
