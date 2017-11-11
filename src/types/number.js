@@ -1,7 +1,8 @@
 const _ = require('lodash');
 const Table = require('./table');
-const argUtils = require('./utils/argUtils.js');
-const tableUtils = require('./utils/tableUtils.js');
+const Boolean = require('./boolean');
+const argUtils = require('./utils/argUtils');
+const tableUtils = require('./utils/tableUtils');
 
 let Number = {
   '+': {
@@ -30,6 +31,13 @@ let Number = {
     _eval: (self, args, ns) => {
       let rArgs = argUtils.resolveArgs(args, ns);
       return numberize(self.value / rArgs[0].value);
+    }
+  },
+  '<': {
+    args: { '0': 'a' },
+    _eval: (self, args, ns) => {
+      let rArgs = argUtils.resolveArgs(args, ns);
+      return _.merge({}, Boolean, { value: self.value < rArgs[0].value });
     }
   },
   times: {

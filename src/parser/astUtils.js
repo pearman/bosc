@@ -1,13 +1,24 @@
 const _ = require('lodash');
-const Table = require('../types/table.js');
-const Number = require('../types/number.js');
-const String = require('../types/string.js');
+const Table = require('../types/table');
+const Number = require('../types/number');
+const String = require('../types/string');
+const Boolean = require('../types/boolean');
 
 function astToTable(ast) {
   if (_.isNil(ast)) return null;
-  if (ast.type === 'list' || ast.type === 'execute') {
+  if (
+    ast.type === 'list' ||
+    ast.type === 'execute' ||
+    ast.type === 'executeFunction'
+  ) {
     let base = _.cloneDeep(Table);
-    if (ast.type === 'execute') _.assign(base, { _context: 'execute' });
+
+    let context = '';
+    if (ast.type === 'list') context = 'resolve';
+    else if (ast.type === 'execute') context = 'execute';
+    else if (ast.type === 'executeFunction') context = 'executeFunction';
+
+    _.assign(base, { _context: context });
     return _.reduce(
       ast.data,
       (acc, exp, index) => {
@@ -21,12 +32,11 @@ function astToTable(ast) {
     let method = _.reduce(
       ast.data.slice(1),
       (acc, exp, index) => {
-        acc[index] = setLazyExecute(astToTable(exp));
+        acc[index] = astToTable(exp);
         return acc;
       },
       _.merge({}, Table, {
-        args: astToTable(ast.data[0]),
-        _context: 'lazyExecute'
+        args: astToTable(ast.data[0])
       })
     );
     //console.log('METHOD', method);
@@ -41,10 +51,10 @@ function astToTable(ast) {
     return _.reduce(
       keyValuePairs,
       (acc, [key, value]) => {
-        acc[key] = astToTable(value);
+        acc[_.get(key, 'value', key)] = astToTable(value);
         return acc;
       },
-      _.merge({}, Table)
+      _.merge({ _context: 'resolve' }, Table)
     );
   }
   if (ast.type === 'symbol') {
@@ -55,6 +65,9 @@ function astToTable(ast) {
   }
   if (ast.type === 'string') {
     return _.merge({}, String, { value: ast.data });
+  }
+  if (ast.type === 'boolean') {
+    return _.merge({}, Boolean, { value: ast.data });
   }
   return ast;
 }

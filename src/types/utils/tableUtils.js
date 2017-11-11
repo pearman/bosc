@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const util = require('util');
 
-const Table = require('../table.js');
+const Table = require('../table');
 
 function arrayToTable(array) {
   return _.reduce(
@@ -26,4 +26,14 @@ function prettyPrint(x) {
   console.log(s);
 }
 
-module.exports = { arrLength, prettyPrint, arrayToTable };
+function arrayMap(arr, fn) {
+  let index = 0;
+  let curr;
+  let newArr = _.merge({}, Table);
+  while ((curr = arr[index++])) {
+    newArr[index - 1] = fn(curr);
+  }
+  return newArr;
+}
+
+module.exports = { arrLength, prettyPrint, arrayToTable, arrayMap };

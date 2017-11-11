@@ -1,10 +1,10 @@
 const P = require('parsimmon');
 const _ = require('lodash');
 
-const astUtils = require('./astUtils.js');
-const tableUtils = require('../types/utils/tableUtils.js');
-const parserUtils = require('./parserUtils.js');
-const vm = require('../vm.js');
+const astUtils = require('./astUtils');
+const tableUtils = require('../types/utils/tableUtils');
+const parserUtils = require('./parserUtils');
+const vm = require('../vm');
 
 let local = vm.newLocal();
 const PearScript = P.createLanguage({
@@ -18,13 +18,14 @@ const PearScript = P.createLanguage({
       r.number,
       r.list,
       r.execute,
+      r.executeFunction,
       r.method,
       r.map
     );
   },
 
   symbol: () =>
-    P.regexp(/[+\-*/.,?:%a-zA-Z_-][a-zA-Z0-9_-]*/)
+    P.regexp(/[+\-*/.,<>=?:%a-zA-Z_-][a-zA-Z0-9_-]*/)
       .map(data => ({ type: 'symbol', data }))
       .map(astUtils.astToTable)
       .desc('symbol'),
@@ -58,16 +59,18 @@ const PearScript = P.createLanguage({
       .many()
       .wrap(P.string('('), P.string(')'))
       .map(data => ({ type: 'execute', data }))
-      .map(astUtils.astToTable)
-      .map(table => {
-        //console.log('EXECUTING', table);
-        // try {
-        return vm.tableEval(table, [local], false);
-        // } catch (err) {
-        //   //console.log('FAILURE', err);
-        //   return table;
-        // }
-      }),
+      .map(astUtils.astToTable),
+
+  executeFunction: r =>
+    r.expression
+      .trim(P.optWhitespace)
+      .many()
+      .wrap(P.string('$('), P.string(')'))
+      .map(data => ({ type: 'executeFunction', data }))
+      .map(astUtils.astToTable),
+  // .map(table => {
+  //   return vm.tableEval(table, [local], false);
+  // }),
 
   list: r =>
     r.expression
@@ -98,6 +101,10 @@ const PearScript = P.createLanguage({
       .trim(P.optWhitespace)
       .many()
       .map(tableUtils.arrayToTable)
+      .map(data => {
+        data._context = 'root';
+        return data;
+      })
 });
 
 module.exports = PearScript.file;

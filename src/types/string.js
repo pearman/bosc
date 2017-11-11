@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const Table = require('./table');
-const argUtils = require('./utils/argUtils.js');
-const tableUtils = require('./utils/tableUtils.js');
+const argUtils = require('./utils/argUtils');
+const tableUtils = require('./utils/tableUtils');
 
 let String = {
   '+': {
