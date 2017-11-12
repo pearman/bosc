@@ -39,7 +39,7 @@ let Table = {
       return self;
     }
   },
-  aprint: {
+  aPrint: {
     args: {},
     _eval: (self, args, ns) => {
       let index = 0;

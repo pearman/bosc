@@ -10,6 +10,7 @@ let prog = `
     x
 |)
 $(fun -5)
+([1 2 3 4] map |[x] x + 1| aPrint)
 `;
 
 let output = parser.tryParse(prog);

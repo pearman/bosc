@@ -24,7 +24,6 @@ function tableEval(table, ns = [newLocal()]) {
     return retVal;
   }
 
-  //console.log('TABLE EVAL ------');
   let index = 0;
   let curr = null;
 
@@ -37,6 +36,11 @@ function tableEval(table, ns = [newLocal()]) {
   let retVal = null;
 
   if (_.get(table, '_context') === 'executeFunction') {
+    /**
+     * Function special form ($(fun x y) special form)
+     *  if the statement is a function
+     *    set state and short circuit state machine to accepting args
+     */
     method = table[0];
 
     let fun = argUtils.symInNamespace(method, ns);
@@ -54,6 +58,12 @@ function tableEval(table, ns = [newLocal()]) {
   while ((curr = table[index++])) {
     //console.log(state, curr, retVal);
     if (state === 0) {
+      /**
+       * Consume object, 
+       *  if object is a symbol: lookup
+       *  if object needs execution: execute
+       *  if object needs resolution: resolve (map needs members to be executed, etc.)
+       */
       if (_.isString(curr)) obj = argUtils.symInNamespace(curr, ns);
       else if (
         _.get(curr, '_context') === 'execute' ||
@@ -65,6 +75,11 @@ function tableEval(table, ns = [newLocal()]) {
       //console.log('SET OBJ', obj, curr, ns);
       state = 1;
     } else if (state === 0.5 || state === 1) {
+      /**
+       * Consume method, check for number of arguments expected
+       *  if no arguments expected: execute
+       *  else consume next argument
+       */
       if (state === 0.5) obj = retVal;
       method = curr;
       //console.log('OBJECT', obj);
@@ -77,6 +92,15 @@ function tableEval(table, ns = [newLocal()]) {
       else state = 2;
     } else if (state === 2) {
       //console.log('Arg', curr);
+      /**
+       * Consume argument,
+       *  if argument needs execution: execute
+       *  if argument needs resolution: resolve
+       *  otherwise consume raw argument
+       * 
+       *  if all args consumed: execute
+       *  otherwise: consume next arg
+       */
       if (
         (_.get(curr, '_context') === 'execute' ||
           _.get(curr, '_context') === 'executeFunction') &&
@@ -91,24 +115,30 @@ function tableEval(table, ns = [newLocal()]) {
       else if (args.length === argsNum) state = 3;
     }
 
+    // If all require args have been consumed, execute immediately
     if (state === 3) {
+      /**
+       * Execute method
+       *  if it is a native method: call JS
+       *  otherwise
+       *    add args to scope and execute 
+       */
       //console.log(`Executing ${method} on `, obj);
       //tableUtils.prettyPrint(obj);
       //tableUtils.prettyPrint(args);
-      if (obj[method]) {
-        if (obj[method]._eval) {
-          retVal = obj[method]._eval(obj, args, ns, tableEval);
-        } else {
-          let argObj = {};
-          let index = 0;
-          let arg = null;
-          while ((arg = argsExpected[index++])) {
-            argObj[arg] = args[index - 1];
-          }
-          retVal = tableEval(obj[method], ns.concat([newLocal(argObj)]));
+      if (obj[method]._eval) {
+        retVal = obj[method]._eval(obj, args, ns, tableEval);
+      } else {
+        let argObj = {};
+        let index = 0;
+        let arg = null;
+        while ((arg = argsExpected[index++])) {
+          argObj[arg] = args[index - 1];
         }
-        state = 0.5;
+        retVal = tableEval(obj[method], ns.concat([newLocal(argObj)]));
       }
+      state = 0.5;
+
       //tableUtils.prettyPrint(retVal);
     }
   }
