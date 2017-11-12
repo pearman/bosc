@@ -62,11 +62,12 @@ function tableEval(table, ns = [newLocal()]) {
         obj = tableEval(curr, ns);
       else if (_.get(curr, '_context') === 'resolve') obj = resolve(curr, ns);
       else obj = curr;
-      //console.log('SET OBJ', obj);
+      //console.log('SET OBJ', obj, curr, ns);
       state = 1;
     } else if (state === 0.5 || state === 1) {
       if (state === 0.5) obj = retVal;
       method = curr;
+      //console.log('OBJECT', obj);
       argsExpected = obj[curr].args;
       //console.log(obj);
       argsNum = tableUtils.arrLength(obj[curr].args);
@@ -77,8 +78,9 @@ function tableEval(table, ns = [newLocal()]) {
     } else if (state === 2) {
       //console.log('Arg', curr);
       if (
-        _.get(curr, '_context') === 'execute' ||
-        _.get(curr, '_context') === 'executeFunction'
+        (_.get(curr, '_context') === 'execute' ||
+          _.get(curr, '_context') === 'executeFunction') &&
+        !_.get(obj, [method, '_doNotEvalArgs'], false)
       )
         args.push(tableEval(curr, ns));
       else if (_.get(curr, '_context' === 'resolve'))
