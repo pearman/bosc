@@ -8,7 +8,11 @@ interpreter.eval(`
     $(fun (x + 1))
     x
 |)
+
 $(fun -5)
-([1 2 3 4] map |[x] x + 1| aPrint)
+
+([1 2 3 4] 
+  map |[x] x * 4 / 2| 
+  aPrint)
 
 `);
