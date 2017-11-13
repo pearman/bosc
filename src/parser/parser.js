@@ -4,9 +4,7 @@ const _ = require('lodash');
 const astUtils = require('./astUtils');
 const tableUtils = require('../types/utils/tableUtils');
 const parserUtils = require('./parserUtils');
-const vm = require('../vm');
 
-let local = vm.newLocal();
 const PearScript = P.createLanguage({
   expression: r => {
     return P.alt(

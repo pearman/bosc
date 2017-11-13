@@ -1,8 +1,7 @@
-const tableUtils = require('./types/utils/tableUtils');
-const parser = require('./parser/parser');
-const vm = require('./vm');
+const interpreter = require('./interpreter');
 
-let prog = `
+interpreter.eval(`
+
 (local : fun |[x]
   x print ,
   x < 5 ? 
@@ -11,8 +10,5 @@ let prog = `
 |)
 $(fun -5)
 ([1 2 3 4] map |[x] x + 1| aPrint)
-`;
 
-let output = parser.tryParse(prog);
-tableUtils.prettyPrint(output);
-vm.tableEval(output);
+`);

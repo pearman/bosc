@@ -2,6 +2,7 @@ const _ = require('lodash');
 const Table = require('./types/table');
 const tableUtils = require('./types/utils/tableUtils');
 const argUtils = require('./types/utils/argUtils');
+const parser = require('./parser/parser');
 //const parser = require('./parser.js');
 
 function resolve(table, ns) {
@@ -11,6 +12,11 @@ function resolve(table, ns) {
     }
     return val;
   });
+}
+
+function eval(str) {
+  let output = parser.tryParse(str);
+  return tableEval(output);
 }
 
 function tableEval(table, ns = [newLocal()]) {
@@ -159,4 +165,4 @@ function newLocal(withData = {}) {
 //   return tableEval(ast, [local]);
 // }
 
-module.exports = { tableEval, newLocal };
+module.exports = { eval, tableEval, newLocal };
