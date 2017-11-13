@@ -5,7 +5,7 @@ const tableUtils = require('./utils/tableUtils');
 
 let Boolean = {
   '?': {
-    args: { '0': 'ifTrue', '1': 'ifFalse' },
+    args: argUtils.args('ifTrue', 'ifFalse'),
     _doNotEvalArgs: true,
     _eval: (self, args, ns, tableEval) => {
       let rArgs = argUtils.resolveArgs(args, ns);

@@ -1,20 +1,15 @@
 const _ = require('lodash');
 const Table = require('./table');
 const argUtils = require('./utils/argUtils');
-const tableUtils = require('./utils/tableUtils');
 
 let String = {
   '+': {
-    args: { '0': 'a' },
-    _eval: (self, args, ns) => {
+    args: argUtils.args(),
+    _eval: (self, args, ns, tableEval, types) => {
       let rArgs = argUtils.resolveArgs(args, ns);
-      return stringize(self.value + rArgs[0].value);
+      return types.toTypes(self.value + rArgs[0].value, types.String);
     }
   }
 };
-
-function stringize(value) {
-  return _.merge({}, Table, String, { value });
-}
 
 module.exports = _.merge({}, Table, String);

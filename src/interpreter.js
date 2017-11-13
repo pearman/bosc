@@ -1,11 +1,12 @@
 const _ = require('lodash');
-const Table = require('./types/table');
+const types = require('./types/types');
 const tableUtils = require('./types/utils/tableUtils');
 const argUtils = require('./types/utils/argUtils');
 const parser = require('./parser/parser');
 
 function eval(str) {
   let output = parser.tryParse(str);
+  //console.log(output);
   return tableEval(output);
 }
 
@@ -129,7 +130,7 @@ function tableEval(table, ns = [newLocal()]) {
       //tableUtils.prettyPrint(obj);
       //tableUtils.prettyPrint(args);
       if (obj[method]._eval) {
-        retVal = obj[method]._eval(obj, args, ns, tableEval);
+        retVal = obj[method]._eval(obj, args, ns, tableEval, types);
       } else {
         let argObj = {};
         let index = 0;
@@ -158,7 +159,7 @@ function resolve(table, ns) {
 }
 
 function newLocal(withData = {}) {
-  let local = _.merge({}, Table, withData);
+  let local = _.merge({}, types.Table, withData);
   local.local = local;
   return local;
 }

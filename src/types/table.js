@@ -1,10 +1,36 @@
 const _ = require('lodash');
 const argUtils = require('./utils/argUtils');
 const tableUtils = require('./utils/tableUtils');
+//const Boolean = require('./boolean');
 
 let Table = {
+  '=': {
+    args: argUtils.args('object'),
+    _eval: (self, args, ns, tableEval, types) => {
+      return _.merge({}, types.Boolean, { value: _.isEqual(self, args[0]) });
+    }
+  },
+  isSameArrayAs: {
+    args: argUtils.args('object'),
+    _eval: (self, args, ns, tableEval, types) => {
+      let index = 0;
+      let left = true;
+      let right = true;
+      let value = true;
+      while (left && right) {
+        left = self[index];
+        right = args[0][index];
+        if (!_.isEqual(left, right)) {
+          value = false;
+          break;
+        }
+        index++;
+      }
+      return _.merge({}, types.Boolean, { value });
+    }
+  },
   ':': {
-    args: { '0': 'key', '1': 'value' },
+    args: argUtils.args('key', 'value'),
     _doNotResolveArgs: true,
     _eval: (self, args, ns) => {
       _.set(self, [args[0]], argUtils.resolveArg(args[1], ns));
@@ -12,7 +38,7 @@ let Table = {
     }
   },
   '.': {
-    args: { '0': 'key' },
+    args: argUtils.args('key'),
     _eval: (self, args, ns) => {
       //console.log(self);
       //console.log(_.get(args[0], 'value', args[0]));
@@ -20,11 +46,11 @@ let Table = {
     }
   },
   ',': {
-    args: { '0': 'function' },
+    args: argUtils.args('object'),
     _eval: (self, args, ns) => args[0]
   },
   print: {
-    args: {},
+    args: argUtils.args(),
     _eval: (self, args, ns) => {
       if (!_.isNil(self.value)) console.log(self.value);
       else console.log(self);
@@ -32,14 +58,14 @@ let Table = {
     }
   },
   deepPrint: {
-    args: {},
+    args: argUtils.args(),
     _eval: (self, args, ns) => {
       console.log(self);
       return self;
     }
   },
   aPrint: {
-    args: {},
+    args: argUtils.args(),
     _eval: (self, args, ns) => {
       let index = 0;
       let curr;
@@ -55,7 +81,7 @@ let Table = {
     }
   },
   map: {
-    args: { '0': 'function' },
+    args: argUtils.args('function'),
     _eval: (self, args, ns, tableEval) => {
       let index = 0;
       let curr;
@@ -70,7 +96,7 @@ let Table = {
     }
   },
   reduce: {
-    args: { '0': 'function', '1': 'accumulator' },
+    args: argUtils.args('function', 'accumulator'),
     _eval: (self, args, ns, tableEval) => {
       let index = 0;
       let curr;

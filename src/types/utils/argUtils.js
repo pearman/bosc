@@ -1,5 +1,16 @@
 const _ = require('lodash');
 
+function args(...args) {
+  return _.reduce(
+    args,
+    (acc, arg, index) => {
+      acc[index] = arg;
+      return acc;
+    },
+    {}
+  );
+}
+
 function symInNamespace(sym, ns) {
   for (let i = ns.length - 1; i >= 0; i--) {
     if (!_.isNil(ns[i][sym])) return ns[i][sym];
@@ -16,4 +27,4 @@ function resolveArg(arg, ns) {
   return arg;
 }
 
-module.exports = { symInNamespace, resolveArg, resolveArgs };
+module.exports = { symInNamespace, resolveArg, resolveArgs, args };

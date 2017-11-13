@@ -1,8 +1,6 @@
 const _ = require('lodash');
 const util = require('util');
 
-const Table = require('../table');
-
 function arrayToTable(array) {
   return _.reduce(
     array,
@@ -10,7 +8,7 @@ function arrayToTable(array) {
       acc[index] = item;
       return acc;
     },
-    _.merge({}, Table)
+    {}
   );
 }
 
