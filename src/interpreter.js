@@ -3,16 +3,6 @@ const Table = require('./types/table');
 const tableUtils = require('./types/utils/tableUtils');
 const argUtils = require('./types/utils/argUtils');
 const parser = require('./parser/parser');
-//const parser = require('./parser.js');
-
-function resolve(table, ns) {
-  return _.mapValues(table, val => {
-    if (_.get(val, '_context') === 'execute') {
-      return tableEval(val, ns);
-    }
-    return val;
-  });
-}
 
 function eval(str) {
   let output = parser.tryParse(str);
@@ -102,6 +92,7 @@ function tableEval(table, ns = [newLocal()]) {
        * Consume argument,
        *  if argument needs execution: execute
        *  if argument needs resolution: resolve
+       *  if argument is a symbol: lookup
        *  otherwise consume raw argument
        * 
        *  if all args consumed: execute
@@ -115,6 +106,11 @@ function tableEval(table, ns = [newLocal()]) {
         args.push(tableEval(curr, ns));
       else if (_.get(curr, '_context' === 'resolve'))
         args.push(resolve(curr, ns));
+      else if (
+        _.isString(curr) && // Strings are symbols
+        !_.get(obj, [method, '_doNotResolveArgs'], false)
+      )
+        args.push(argUtils.resolveArg(curr, ns));
       else args.push(curr);
 
       if (args.length < argsNum) state = 2;
@@ -152,17 +148,19 @@ function tableEval(table, ns = [newLocal()]) {
   return retVal;
 }
 
+function resolve(table, ns) {
+  return _.mapValues(table, val => {
+    if (_.get(val, '_context') === 'execute') {
+      return tableEval(val, ns);
+    }
+    return val;
+  });
+}
+
 function newLocal(withData = {}) {
   let local = _.merge({}, Table, withData);
   local.local = local;
   return local;
 }
-
-// function pearscriptEval(str) {
-//   let ast = parser.tryParse(str);
-//   console.log(ast);
-//   let local = newLocal();
-//   return tableEval(ast, [local]);
-// }
 
 module.exports = { eval, tableEval, newLocal };

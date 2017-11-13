@@ -5,6 +5,7 @@ const tableUtils = require('./utils/tableUtils');
 let Table = {
   ':': {
     args: { '0': 'key', '1': 'value' },
+    _doNotResolveArgs: true,
     _eval: (self, args, ns) => {
       _.set(self, [args[0]], argUtils.resolveArg(args[1], ns));
       return self;
@@ -20,9 +21,7 @@ let Table = {
   },
   ',': {
     args: { '0': 'function' },
-    _eval: (self, args, ns) => {
-      return argUtils.symInNamespace(args[0], ns);
-    }
+    _eval: (self, args, ns) => args[0]
   },
   print: {
     args: {},

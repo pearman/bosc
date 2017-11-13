@@ -7,45 +7,28 @@ const tableUtils = require('./utils/tableUtils');
 let Number = {
   '+': {
     args: { '0': 'a' },
-    _eval: (self, args, ns) => {
-      let rArgs = argUtils.resolveArgs(args, ns);
-      return numberize(self.value + rArgs[0].value);
-    }
+    _eval: (self, args, ns) => numberize(self.value + args[0].value)
   },
   '-': {
     args: { '0': 'a' },
-    _eval: (self, args, ns) => {
-      let rArgs = argUtils.resolveArgs(args, ns);
-      return numberize(self.value - rArgs[0].value);
-    }
+    _eval: (self, args, ns) => numberize(self.value - args[0].value)
   },
   '*': {
     args: { '0': 'a' },
-    _eval: (self, args, ns) => {
-      let rArgs = argUtils.resolveArgs(args, ns);
-      return numberize(self.value * rArgs[0].value);
-    }
+    _eval: (self, args, ns) => numberize(self.value * args[0].value)
   },
   '/': {
     args: { '0': 'a' },
-    _eval: (self, args, ns) => {
-      let rArgs = argUtils.resolveArgs(args, ns);
-      return numberize(self.value / rArgs[0].value);
-    }
+    _eval: (self, args, ns) => numberize(self.value / args[0].value)
   },
   '<': {
     args: { '0': 'a' },
-    _eval: (self, args, ns) => {
-      let rArgs = argUtils.resolveArgs(args, ns);
-      return _.merge({}, Boolean, { value: self.value < rArgs[0].value });
-    }
+    _eval: (self, args, ns) => boolize(self.value < args[0].value)
   },
   times: {
     args: { '0': 'function' },
     _eval: (self, args, ns, tableEval) => {
-      //console.log(ns.concat([{ [args[0].args[0]]: numberize(1) }]));
       let output = _.times(self.value, i => {
-        // console.log('ARG0', args);
         return tableEval(
           args[0],
           ns.concat([{ [args[0].args[0]]: numberize(i) }])
@@ -58,6 +41,10 @@ let Number = {
 
 function numberize(value) {
   return _.merge({}, Table, Number, { value });
+}
+
+function boolize(value) {
+  return _.merge({}, Boolean, { value });
 }
 
 module.exports = _.merge({}, Table, Number);
