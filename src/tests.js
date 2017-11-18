@@ -42,3 +42,13 @@ interpreter.eval(`
     ? 'PASS' 'FAIL----'
     print
 `);
+
+// Metaprogramming
+interpreter.eval(`
+  local : fun |[x] x + 5| ,
+  $(fun 5) = 10 
+    ? 'PASS' 'FAIL---' print,
+  local . fun :symbol 1 ('*' toSymbol) ,
+  $(fun 5) = 25 
+    ? 'PASS' 'FAIL---' print
+`);

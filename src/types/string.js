@@ -12,7 +12,6 @@ let methods = {
   toSymbol: {
     args: argUtils.args(),
     _eval: (self, args, ns, tableEval, types) => {
-      console.log(self);
       return self.value;
     }
   }

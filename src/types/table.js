@@ -45,7 +45,6 @@ let methods = {
     args: argUtils.args('key', 'value'),
     _doNotResolveArgs: true,
     _eval: (self, args, ns) => {
-      console.log(args);
       _.set(self, [_.get(args[0], 'value', args[0])], args[1]);
       return self;
     }
