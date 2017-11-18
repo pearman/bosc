@@ -34,3 +34,11 @@ interpreter.eval(`
       ? 'PASS' 'FAIL----'
       print
   `);
+
+// Getters and setters
+interpreter.eval(`
+  local : x [1 2 3 4] ,
+  x . 1 = 2 
+    ? 'PASS' 'FAIL----'
+    print
+`);

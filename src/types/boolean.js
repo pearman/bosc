@@ -1,9 +1,9 @@
 const _ = require('lodash');
-const types = require('./types');
+const Table = require('./table');
 const argUtils = require('./utils/argUtils');
 const tableUtils = require('./utils/tableUtils');
 
-let Boolean = {
+let methods = {
   '?': {
     args: argUtils.args('ifTrue', 'ifFalse'),
     _doNotEvalArgs: true,
@@ -22,4 +22,4 @@ let Boolean = {
   }
 };
 
-module.exports = _.merge({}, types.Table, Boolean);
+module.exports = Table(methods);

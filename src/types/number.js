@@ -3,46 +3,46 @@ const Table = require('./table');
 const argUtils = require('./utils/argUtils');
 const tableUtils = require('./utils/tableUtils');
 
-let Number = {
+let methods = {
   '+': {
     args: argUtils.args('number'),
     _eval: (self, args, ns, tableEval, types) =>
-      types.toType(self.value + args[0].value, types.Number)
+      new types.Number(self.value + args[0].value)
   },
   '-': {
     args: argUtils.args('number'),
     _eval: (self, args, ns, tableEval, types) =>
-      types.toType(self.value - args[0].value, types.Number)
+      new types.Number(self.value - args[0].value)
   },
   '*': {
     args: argUtils.args('number'),
     _eval: (self, args, ns, tableEval, types) =>
-      types.toType(self.value * args[0].value, types.Number)
+      new types.Number(self.value * args[0].value)
   },
   '/': {
     args: argUtils.args('number'),
     _eval: (self, args, ns, tableEval, types) =>
-      types.toType(self.value / args[0].value, types.Number)
+      new types.Number(self.value / args[0].value)
   },
   '<': {
     args: argUtils.args('number'),
     _eval: (self, args, ns, tableEval, types) =>
-      types.toType(self.value < args[0].value, types.Boolean)
+      new types.Boolean(self.value < args[0].value)
   },
   '>': {
     args: argUtils.args('number'),
     _eval: (self, args, ns, tableEval, types) =>
-      types.toType(self.value > args[0].value, types.Boolean)
+      new types.Boolean(self.value > args[0].value)
   },
   '<=': {
     args: argUtils.args('number'),
     _eval: (self, args, ns, tableEval, types) =>
-      types.toType(self.value <= args[0].value, types.Boolean)
+      new types.Boolean(self.value <= args[0].value)
   },
   '>=': {
     args: argUtils.args('number'),
     _eval: (self, args, ns, tableEval, types) =>
-      types.toType(self.value >= args[0].value, types.Boolean)
+      new types.Boolean(self.value >= args[0].value)
   },
   times: {
     args: argUtils.args('function'),
@@ -50,13 +50,13 @@ let Number = {
       let output = _.times(self.value, i => {
         return tableEval(
           args[0],
-          ns.concat([{ [args[0].args[0]]: types.toType(i, types.Number) }])
+          ns.concat([{ [args[0].args[0]]: new types.Number(i) }])
         );
       });
       let result = tableUtils.arrayToTable(output);
-      return _.merge(result, types.Table);
+      return new (types.Table())(undefined, result);
     }
   }
 };
 
-module.exports = _.merge({}, Table, Number);
+module.exports = Table(methods);

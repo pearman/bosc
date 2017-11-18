@@ -41,18 +41,11 @@ function prettyPrint(table, preferValue = true) {
     if (_.isUndefined(value)) value = prune(table);
     printValue = value;
   }
-  let out = util.inspect(printValue, opts);
-  console.log(out.replace("'[self]'", 'self'));
+  let out = util
+    .inspect(printValue, opts)
+    .replace("'[self]'", 'self')
+    .replace('_eval: {}', 'JSMethod');
+  console.log(out);
 }
 
-function arrayMap(arr, fn) {
-  let index = 0;
-  let curr;
-  let newArr = _.merge({}, Table);
-  while ((curr = arr[index++])) {
-    newArr[index - 1] = fn(curr);
-  }
-  return newArr;
-}
-
-module.exports = { arrLength, prettyPrint, arrayToTable, arrayMap };
+module.exports = { arrLength, prettyPrint, arrayToTable };

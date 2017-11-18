@@ -3,11 +3,11 @@ const argUtils = require('./utils/argUtils');
 const tableUtils = require('./utils/tableUtils');
 //const Boolean = require('./boolean');
 
-let Table = {
+let methods = {
   '=': {
     args: argUtils.args('object'),
     _eval: (self, args, ns, tableEval, types) => {
-      return _.merge({}, types.Boolean, { value: _.isEqual(self, args[0]) });
+      return new types.Boolean(_.isEqual(self, args[0]));
     }
   },
   isSameArrayAs: {
@@ -26,7 +26,7 @@ let Table = {
         }
         index++;
       }
-      return _.merge({}, types.Boolean, { value });
+      return new types.Boolean(value);
     }
   },
   ':': {
@@ -81,22 +81,22 @@ let Table = {
   },
   map: {
     args: argUtils.args('function'),
-    _eval: (self, args, ns, tableEval) => {
+    _eval: (self, args, ns, tableEval, types) => {
       let index = 0;
       let curr;
-      let newArr = _.merge({}, Table);
+      let newArr = {};
       while ((curr = self[index++])) {
         newArr[index - 1] = tableEval(
           args[0],
           ns.concat([{ [args[0].args[0]]: curr }])
         );
       }
-      return newArr;
+      return new (types.Table())(undefined, newArr);
     }
   },
   reduce: {
     args: argUtils.args('function', 'accumulator'),
-    _eval: (self, args, ns, tableEval) => {
+    _eval: (self, args, ns, tableEval, types) => {
       let index = 0;
       let curr;
       let newArr = args[1];
@@ -106,9 +106,18 @@ let Table = {
           ns.concat([{ [args[0].args[0]]: newArr, [args[0].args[1]]: curr }])
         );
       }
-      return newArr;
+      return new (types.Table())(undefined, newArr);
     }
   }
 };
+
+function Table(methodsIn = {}) {
+  let customTable = function(value, data = undefined) {
+    if (!_.isUndefined(value)) this.value = value;
+    if (!_.isUndefined(data)) _.assignIn(this, data);
+  };
+  customTable.prototype = _.merge({}, methods, methodsIn);
+  return customTable;
+}
 
 module.exports = Table;

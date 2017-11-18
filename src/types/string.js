@@ -2,13 +2,13 @@ const _ = require('lodash');
 const Table = require('./table');
 const argUtils = require('./utils/argUtils');
 
-let String = {
+let methods = {
   '+': {
     args: argUtils.args('value'),
     _eval: (self, args, ns, tableEval, types) => {
-      return types.toType(self.value + args[0].value, types.String);
+      return new types.String(self.value + args[0].value);
     }
   }
 };
 
-module.exports = _.merge({}, Table, String);
+module.exports = Table(methods);

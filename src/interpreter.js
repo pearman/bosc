@@ -69,7 +69,7 @@ function tableEval(table, ns = [newLocal()]) {
       else obj = curr;
 
       if (_.isNil(obj)) {
-        console.error(`Error: Symbol ${curr} does not exist!`);
+        console.error(`Error: Symbol '${curr}' does not exist!`, curr);
         break;
       }
 
@@ -85,7 +85,7 @@ function tableEval(table, ns = [newLocal()]) {
       method = curr;
 
       if (_.isNil(obj[curr])) {
-        console.error(`Error: Cannot find method ${method}`);
+        console.error(`Error: Cannot find method '${method}'`);
         break;
       }
 
@@ -136,7 +136,10 @@ function tableEval(table, ns = [newLocal()]) {
         try {
           retVal = obj[method]._eval(obj, args, ns, tableEval, types);
         } catch (err) {
-          console.error(`Error: Failed to execute JS method ${method}\n`, err);
+          console.error(
+            `Error: Failed to execute JS method '${method}'\n`,
+            err
+          );
           break;
         }
       } else {
@@ -153,7 +156,7 @@ function tableEval(table, ns = [newLocal()]) {
   }
 
   if (state === 2) {
-    console.error(`Error: Expecting another argument for method ${method}`);
+    console.error(`Error: Expecting another argument for method '${method}'`);
     return null;
   }
 
@@ -161,16 +164,17 @@ function tableEval(table, ns = [newLocal()]) {
 }
 
 function resolve(table, ns) {
-  return _.mapValues(table, val => {
+  let result = _.mapValues(table, val => {
     if (_.get(val, '_context') === 'execute') {
       return tableEval(val, ns);
     }
     return val;
   });
+  return new (types.Table())(undefined, result);
 }
 
 function newLocal(withData = {}) {
-  let local = _.merge({}, types.Table, withData);
+  let local = new (types.Table())(undefined, withData);
   local.local = local;
   return local;
 }

@@ -8,36 +8,37 @@ function astToTable(ast) {
     ast.type === 'execute' ||
     ast.type === 'executeFunction'
   ) {
-    let base = _.cloneDeep(types.Table);
-
     let context = '';
     if (ast.type === 'list') context = 'resolve';
     else if (ast.type === 'execute') context = 'execute';
     else if (ast.type === 'executeFunction') context = 'executeFunction';
 
-    _.assign(base, { _context: context });
-    return _.reduce(
+    let data = _.reduce(
       ast.data,
       (acc, exp, index) => {
         acc[index] = astToTable(exp);
         return acc;
       },
-      base
+      { _context: context }
     );
+    let value = new (types.Table())(undefined, data);
+    // console.log(value.__proto__);
+    // console.log(value['=']);
+    return value;
   }
   if (ast.type === 'method') {
-    let method = _.reduce(
+    let data = _.reduce(
       ast.data.slice(1),
       (acc, exp, index) => {
         acc[index] = astToTable(exp);
         return acc;
       },
-      _.merge({}, types.Table, {
+      {
         args: astToTable(ast.data[0])
-      })
+      }
     );
     //console.log('METHOD', method);
-    return method;
+    return new (types.Table(data))(undefined, data);
   }
   if (ast.type === 'map') {
     let keyValuePairs = [];
@@ -45,26 +46,27 @@ function astToTable(ast) {
       if (index % 2 === 0) keyValuePairs.push([value]);
       else _.last(keyValuePairs).push(value);
     });
-    return _.reduce(
+    let data = _.reduce(
       keyValuePairs,
       (acc, [key, value]) => {
         acc[_.get(key, 'value', key)] = astToTable(value);
         return acc;
       },
-      _.merge({ _context: 'resolve' }, types.Table)
+      { _context: 'resolve' }
     );
+    return new (types.Table())(undefined, data);
   }
   if (ast.type === 'symbol') {
     return ast.data;
   }
   if (ast.type === 'number') {
-    return types.toType(ast.data, types.Number);
+    return new types.Number(ast.data);
   }
   if (ast.type === 'string') {
-    return types.toType(ast.data, types.String);
+    return new types.String(ast.data);
   }
   if (ast.type === 'boolean') {
-    return types.toType(ast.data, types.Boolean);
+    return new types.Boolean(ast.data);
   }
   return ast;
 }
