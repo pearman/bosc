@@ -8,6 +8,13 @@ let methods = {
     _eval: (self, args, ns, tableEval, types) => {
       return new types.String(self.value + args[0].value);
     }
+  },
+  toSymbol: {
+    args: argUtils.args(),
+    _eval: (self, args, ns, tableEval, types) => {
+      console.log(self);
+      return self.value;
+    }
   }
 };
 

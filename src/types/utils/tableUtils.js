@@ -20,6 +20,7 @@ function arrLength(table) {
 
 function prune(table) {
   if (_.isNil(table)) return table;
+  if (_.isString(table)) return table;
   let pruned = _.omitBy(
     table,
     (entry, key) => _.has(entry, '_eval') || key === '_context'
