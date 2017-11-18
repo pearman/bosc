@@ -18,10 +18,31 @@ function arrLength(table) {
   return index - 1;
 }
 
-function prettyPrint(x) {
+function prune(table) {
+  if (_.isNil(table)) return table;
+  let pruned = _.omitBy(
+    table,
+    (entry, key) => _.has(entry, '_eval') || key === '_context'
+  );
+  if (_.has(pruned, 'value')) return _.get(pruned, 'value');
+  let extraPruned = _.mapValues(pruned, value => {
+    if (_.isEqual(value, table)) return '[self]';
+    if (_.isObject(value)) return prune(value);
+    return value;
+  });
+  return extraPruned;
+}
+
+function prettyPrint(table, preferValue = true) {
   let opts = { depth: null, colors: 'auto' };
-  let s = util.inspect(x, opts);
-  console.log(s);
+  let printValue = table;
+  if (preferValue) {
+    let value = _.get(table, 'value');
+    if (_.isUndefined(value)) value = prune(table);
+    printValue = value;
+  }
+  let out = util.inspect(printValue, opts);
+  console.log(out.replace("'[self]'", 'self'));
 }
 
 function arrayMap(arr, fn) {

@@ -4,10 +4,9 @@ const argUtils = require('./utils/argUtils');
 
 let String = {
   '+': {
-    args: argUtils.args(),
+    args: argUtils.args('value'),
     _eval: (self, args, ns, tableEval, types) => {
-      let rArgs = argUtils.resolveArgs(args, ns);
-      return types.toTypes(self.value + rArgs[0].value, types.String);
+      return types.toType(self.value + args[0].value, types.String);
     }
   }
 };

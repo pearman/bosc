@@ -4,10 +4,9 @@ const tableUtils = require('./types/utils/tableUtils');
 const argUtils = require('./types/utils/argUtils');
 const parser = require('./parser/parser');
 
-function eval(str) {
+function eval(str, ns = [newLocal()]) {
   let output = parser.tryParse(str);
-  //console.log(output);
-  return tableEval(output);
+  return tableEval(output, ns);
 }
 
 function tableEval(table, ns = [newLocal()]) {
@@ -53,7 +52,6 @@ function tableEval(table, ns = [newLocal()]) {
   }
 
   while ((curr = table[index++])) {
-    //console.log(state, curr, retVal);
     if (state === 0) {
       /**
        * Consume object, 
@@ -69,7 +67,13 @@ function tableEval(table, ns = [newLocal()]) {
         obj = tableEval(curr, ns);
       else if (_.get(curr, '_context') === 'resolve') obj = resolve(curr, ns);
       else obj = curr;
-      //console.log('SET OBJ', obj, curr, ns);
+
+      if (_.isNil(obj)) {
+        console.error(`Error: Symbol ${curr} does not exist!`);
+        break;
+      }
+
+      retVal = obj; // Useful for repl, when print value of var
       state = 1;
     } else if (state === 0.5 || state === 1) {
       /**
@@ -79,16 +83,18 @@ function tableEval(table, ns = [newLocal()]) {
        */
       if (state === 0.5) obj = retVal;
       method = curr;
-      //console.log('OBJECT', obj);
+
+      if (_.isNil(obj[curr])) {
+        console.error(`Error: Cannot find method ${method}`);
+        break;
+      }
+
       argsExpected = obj[curr].args;
-      //console.log(obj);
       argsNum = tableUtils.arrLength(obj[curr].args);
-      //console.log('ARGS EXPECTED', argsNum);
       args = [];
       if (argsNum === 0) state = 3;
       else state = 2;
     } else if (state === 2) {
-      //console.log('Arg', curr);
       /**
        * Consume argument,
        *  if argument needs execution: execute
@@ -126,11 +132,13 @@ function tableEval(table, ns = [newLocal()]) {
        *  otherwise
        *    add args to scope and execute 
        */
-      //console.log(`Executing ${method} on `, obj);
-      //tableUtils.prettyPrint(obj);
-      //tableUtils.prettyPrint(args);
       if (obj[method]._eval) {
-        retVal = obj[method]._eval(obj, args, ns, tableEval, types);
+        try {
+          retVal = obj[method]._eval(obj, args, ns, tableEval, types);
+        } catch (err) {
+          console.error(`Error: Failed to execute JS method ${method}\n`, err);
+          break;
+        }
       } else {
         let argObj = {};
         let index = 0;
@@ -141,9 +149,12 @@ function tableEval(table, ns = [newLocal()]) {
         retVal = tableEval(obj[method], ns.concat([newLocal(argObj)]));
       }
       state = 0.5;
-
-      //tableUtils.prettyPrint(retVal);
     }
+  }
+
+  if (state === 2) {
+    console.error(`Error: Expecting another argument for method ${method}`);
+    return null;
   }
 
   return retVal;
@@ -164,4 +175,8 @@ function newLocal(withData = {}) {
   return local;
 }
 
-module.exports = { eval, tableEval, newLocal };
+function newScope() {
+  return [newLocal()];
+}
+
+module.exports = { eval, tableEval, newLocal, newScope };

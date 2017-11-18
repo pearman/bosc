@@ -1,44 +1,21 @@
+var rl = require('readline-sync');
+
 const interpreter = require('./interpreter');
+const tableUtils = require('./types/utils/tableUtils');
 
-// interpreter.eval(`
-//   (5 times |[x] x + 1| aPrint)
-// `);
+let prompt = require('prompt-sync')({
+  history: require('prompt-sync-history')(),
+  sigint: false
+});
 
-tests();
-
-function tests() {
-  // Recursion
-  interpreter.eval(`
-    (local : fun |[x]
-      x < 5 ? 
-        $(fun (x + 1))
-        x
-    |)
-    
-    ($(fun -5) = 5 ? 'PASS' 'FAIL----')
-  `);
-  // Map
-  interpreter.eval(`
-    ([1 2 3 4] 
-      map |[x] x * 4 / 2| 
-      isSameArrayAs [2 4 6 8]
-      ? 'PASS' 'FAIL----'
-      print)
-  `);
-  // Numerical Comparison
-  interpreter.eval(`
-    (1 < 2 ? 'PASS' 'FAIL' print)
-    (1 > 2 ? 'FAIL----' 'PASS' print)
-    (2 <= 2 ? 'PASS' 'FAIL----' print)
-    (3 <= 2 ? 'FAIL----' 'PASS' print)
-    (2 >= 2 ? 'PASS' 'FAIL----' print)
-    (2 >= 3 ? 'FAIL----' 'PASS' print)
-  `);
-  // Simple iteration
-  interpreter.eval(`
-    (5 times |[x] x + 1| 
-      isSameArrayAs [1 2 3 4 5]
-      ? 'PASS' 'FAIL----'
-      print)
-  `);
+let scope = interpreter.newScope();
+while (true) {
+  let prog = prompt('pearscript$ ');
+  if (prog === null) break;
+  try {
+    tableUtils.prettyPrint(interpreter.eval(prog, scope));
+  } catch (err) {
+    console.log(err);
+  }
+  //console.log(scope);
 }

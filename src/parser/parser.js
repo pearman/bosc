@@ -44,12 +44,23 @@ const PearScript = P.createLanguage({
       .map(astUtils.astToTable)
       .desc('number'),
 
-  null: () => parserUtils.word('null').result({ type: 'null', _data: null }),
+  null: () =>
+    parserUtils
+      .word('null')
+      .result({ type: 'null', data: null })
+      .map(astUtils.astToTable),
 
-  true: () => parserUtils.word('true').result({ type: 'boolean', _data: true }),
+  true: () =>
+    parserUtils
+      .word('true')
+      .result({ type: 'boolean', data: true })
+      .map(astUtils.astToTable),
 
   false: () =>
-    parserUtils.word('false').result({ type: 'boolean', _data: false }),
+    parserUtils
+      .word('false')
+      .result({ type: 'boolean', data: false })
+      .map(astUtils.astToTable),
 
   execute: r =>
     r.expression
@@ -100,7 +111,7 @@ const PearScript = P.createLanguage({
       .many()
       .map(tableUtils.arrayToTable)
       .map(data => {
-        data._context = 'root';
+        data._context = 'execute';
         return data;
       })
 });

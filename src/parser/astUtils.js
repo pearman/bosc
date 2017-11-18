@@ -1,8 +1,5 @@
 const _ = require('lodash');
-const Table = require('../types/table');
-const Number = require('../types/number');
-const String = require('../types/string');
-const Boolean = require('../types/boolean');
+const types = require('../types/types');
 
 function astToTable(ast) {
   if (_.isNil(ast)) return null;
@@ -11,7 +8,7 @@ function astToTable(ast) {
     ast.type === 'execute' ||
     ast.type === 'executeFunction'
   ) {
-    let base = _.cloneDeep(Table);
+    let base = _.cloneDeep(types.Table);
 
     let context = '';
     if (ast.type === 'list') context = 'resolve';
@@ -35,7 +32,7 @@ function astToTable(ast) {
         acc[index] = astToTable(exp);
         return acc;
       },
-      _.merge({}, Table, {
+      _.merge({}, types.Table, {
         args: astToTable(ast.data[0])
       })
     );
@@ -54,20 +51,20 @@ function astToTable(ast) {
         acc[_.get(key, 'value', key)] = astToTable(value);
         return acc;
       },
-      _.merge({ _context: 'resolve' }, Table)
+      _.merge({ _context: 'resolve' }, types.Table)
     );
   }
   if (ast.type === 'symbol') {
     return ast.data;
   }
   if (ast.type === 'number') {
-    return _.merge({}, Number, { value: ast.data });
+    return types.toType(ast.data, types.Number);
   }
   if (ast.type === 'string') {
-    return _.merge({}, String, { value: ast.data });
+    return types.toType(ast.data, types.String);
   }
   if (ast.type === 'boolean') {
-    return _.merge({}, Boolean, { value: ast.data });
+    return types.toType(ast.data, types.Boolean);
   }
   return ast;
 }

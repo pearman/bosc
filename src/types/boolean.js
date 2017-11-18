@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const Table = require('./table');
+const types = require('./types');
 const argUtils = require('./utils/argUtils');
 const tableUtils = require('./utils/tableUtils');
 
@@ -22,8 +22,4 @@ let Boolean = {
   }
 };
 
-function boolize(value) {
-  return _.merge({}, Table, Boolean, { value });
-}
-
-module.exports = _.merge({}, Table, Boolean);
+module.exports = _.merge({}, types.Table, Boolean);
