@@ -1,4 +1,4 @@
-const interpreter = require('./interpreter');
+const interpreter = require('../interpreter');
 
 // Recursion
 interpreter.eval(`

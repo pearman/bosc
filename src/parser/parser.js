@@ -5,7 +5,7 @@ const astUtils = require('./astUtils');
 const tableUtils = require('../types/utils/tableUtils');
 const parserUtils = require('./parserUtils');
 
-const PearScript = P.createLanguage({
+const Bosc = P.createLanguage({
   expression: r => {
     return P.alt(
       r.true,
@@ -116,4 +116,4 @@ const PearScript = P.createLanguage({
       })
 });
 
-module.exports = PearScript.file;
+module.exports = Bosc.file;
