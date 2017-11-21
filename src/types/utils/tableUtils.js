@@ -18,6 +18,12 @@ function arrLength(table) {
   return index - 1;
 }
 
+function push(table, value) {
+  let index = arrLength(table);
+  table[index] = value;
+  return table;
+}
+
 function prune(table) {
   if (_.isNil(table)) return table;
   if (_.isString(table)) return table;
@@ -49,4 +55,4 @@ function prettyPrint(table, preferValue = true) {
   console.log(out);
 }
 
-module.exports = { arrLength, prettyPrint, arrayToTable };
+module.exports = { arrLength, prettyPrint, arrayToTable, push };

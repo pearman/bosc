@@ -120,6 +120,14 @@ let methods = {
       }
       return new (types.Table())(undefined, newArr);
     }
+  },
+  push: {
+    args: argUtils.args('value'),
+    _eval: (self, args, ns, tableEval, types) => {
+      let newTable = _.cloneDeep(self);
+      tableUtils.push(newTable, args[0]);
+      return new (types.Table())(undefined, newTable);
+    }
   }
 };
 

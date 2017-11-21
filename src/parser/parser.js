@@ -101,7 +101,7 @@ const Bosc = P.createLanguage({
     r.expression
       .trim(P.optWhitespace)
       .many()
-      .wrap(P.string('|'), P.string('|'))
+      .wrap(P.string('#('), P.string(')'))
       .map(data => ({ type: 'method', data }))
       .map(astUtils.astToTable),
 
