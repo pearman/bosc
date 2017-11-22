@@ -64,3 +64,21 @@ interpreter.eval(`
       isSameArrayAs [3 2 1 'BOOM']
       ? 'PASS' 'FAIL---' print
 `);
+
+// Class
+interpreter.eval(`
+  local : Person #([name age] {
+    name name
+    age age
+    checkAge #([] this . age >= 18)
+  }) ,
+
+  local : gabe $(Person 'Gabe' 23) ,
+  local : larry $(Person 'Larry' 15) ,
+
+  gabe . name = 'Gabe' ? 'PASS' 'FAIL---' ,
+  gabe checkAge = true ? 'PASS' 'FAIL---' ,
+
+  larry . name = 'Larry' ? 'PASS' 'FAIL---' ,
+  larry checkAge = false ? 'PASS' 'FAIL---' 
+`);

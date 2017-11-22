@@ -149,6 +149,7 @@ function tableEval(table, ns = [newLocal()]) {
         while ((arg = argsExpected[index++])) {
           argObj[arg] = args[index - 1];
         }
+        argObj['this'] = obj;
         retVal = tableEval(obj[method], ns.concat([newLocal(argObj)]));
       }
       state = 0.5;
@@ -164,9 +165,15 @@ function tableEval(table, ns = [newLocal()]) {
 }
 
 function resolve(table, ns) {
-  let result = _.mapValues(table, val => {
+  let result = _.mapValues(table, (val, key) => {
     if (_.get(val, '_context') === 'execute') {
       return tableEval(val, ns);
+    }
+    if (_.isString(val) && !_.startsWith('_', key)) {
+      return argUtils.symInNamespace(val, ns);
+    }
+    if (_.get(val, '_context') === 'resolve') {
+      return resolve(val, ns);
     }
     return val;
   });
