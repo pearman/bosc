@@ -143,7 +143,9 @@ function tableEval(table, ns = [newLocal()]) {
           retVal = obj[method]._eval(obj, args, ns, tableEval, types);
         } catch (err) {
           throw {
-            err: `Error: Failed to execute JS method '${method}'\n` + err,
+            err:
+              `Error: Failed to execute JS method '${method}'\n` +
+              JSON.stringify(err),
             obj,
             type: 'BoscError'
           };
