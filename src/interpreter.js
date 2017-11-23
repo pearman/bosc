@@ -69,8 +69,11 @@ function tableEval(table, ns = [newLocal()]) {
       else obj = curr;
 
       if (_.isNil(obj)) {
-        console.error(`Error: Symbol '${curr}' does not exist!`, curr);
-        break;
+        throw {
+          err: `Error: Symbol '${curr}' does not exist!`,
+          obj,
+          type: 'BoscError'
+        };
       }
 
       retVal = obj; // Useful for repl, when print value of var
@@ -85,8 +88,11 @@ function tableEval(table, ns = [newLocal()]) {
       method = curr;
 
       if (_.isNil(obj[curr])) {
-        console.error(`Error: Cannot find method '${method}'`);
-        break;
+        throw {
+          err: `Error: Cannot find method '${method}'`,
+          obj,
+          type: 'BoscError'
+        };
       }
 
       argsExpected = obj[curr].args;
@@ -136,11 +142,11 @@ function tableEval(table, ns = [newLocal()]) {
         try {
           retVal = obj[method]._eval(obj, args, ns, tableEval, types);
         } catch (err) {
-          console.error(
-            `Error: Failed to execute JS method '${method}'\n`,
-            err
-          );
-          break;
+          throw {
+            err: `Error: Failed to execute JS method '${method}'\n` + err,
+            obj,
+            type: 'BoscError'
+          };
         }
       } else {
         let argObj = {};
@@ -157,7 +163,11 @@ function tableEval(table, ns = [newLocal()]) {
   }
 
   if (state === 2) {
-    console.error(`Error: Expecting another argument for method '${method}'`);
+    throw {
+      err: `Error: Expecting another argument for method '${method}'`,
+      obj,
+      type: 'BoscError'
+    };
     return null;
   }
 
