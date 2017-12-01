@@ -1,6 +1,10 @@
 const _ = require('lodash');
 const types = require('../types/types');
 
+function removeComments(data) {
+  return _.filter(data, item => !_.has(item, '_comment'));
+}
+
 function astToTable(ast) {
   if (_.isNil(ast)) return null;
   if (
@@ -12,9 +16,9 @@ function astToTable(ast) {
     if (ast.type === 'list') context = 'resolve';
     else if (ast.type === 'execute') context = 'execute';
     else if (ast.type === 'executeFunction') context = 'executeFunction';
-
+    let array = removeComments(ast.data);
     let data = _.reduce(
-      ast.data,
+      array,
       (acc, exp, index) => {
         acc[index] = astToTable(exp);
         return acc;
@@ -22,19 +26,18 @@ function astToTable(ast) {
       { _context: context }
     );
     let value = new (types.Table())(undefined, data);
-    // console.log(value.__proto__);
-    // console.log(value['=']);
     return value;
   }
   if (ast.type === 'method') {
+    let array = removeComments(ast.data);
     let data = _.reduce(
-      ast.data.slice(1),
+      array.slice(1),
       (acc, exp, index) => {
         acc[index] = astToTable(exp);
         return acc;
       },
       {
-        args: astToTable(ast.data[0])
+        args: astToTable(array[0])
       }
     );
     //console.log('METHOD', method);
@@ -71,4 +74,4 @@ function astToTable(ast) {
   return ast;
 }
 
-module.exports = { astToTable };
+module.exports = { astToTable, removeComments };

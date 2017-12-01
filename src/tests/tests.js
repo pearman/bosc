@@ -2,21 +2,25 @@ const interpreter = require('../interpreter');
 
 // Recursion
 interpreter.eval(`
-    local : fun #([x]
+    ; Starting comment
+    local : fun #([x] ; Comment test
       x < 5 ? 
-        $(fun (x + 1))
-        x
+        $(fun (x + 1)) ; another comment
+        x ; Check my comment yo
     ) ,
     
     $(fun -5) = 5 ? 'PASS' 'FAIL----'
   `);
 // Map
 interpreter.eval(`
+    ; Starting comment
     [1 2 3 4] 
       map #([x] x * 4 / 2) 
-      isSameArrayAs [2 4 6 8]
+      isSameArrayAs [2 4 6 8] ; comment
       ? 'PASS' 'FAIL----'
       print
+
+    ; Ending comment
   `);
 // Numerical Comparison
 interpreter.eval(`
@@ -46,7 +50,7 @@ interpreter.eval(`
 // Metaprogramming
 interpreter.eval(`
   local : fun #([x] x + 5) ,
-  $(fun 5) = 10 
+  $(fun 5) = 10 ;comment
     ? 'PASS' 'FAIL---' print,
   local . fun :symbol 1 ('*' toSymbol) ,
   $(fun 5) = 25 
@@ -55,7 +59,7 @@ interpreter.eval(`
 
 // Nested function
 interpreter.eval(`
-    local : countdown #([x]
+    local : countdown #([x] ;comment
       x times #([y] x - y)
       push 'BOOM'
     ) ,
@@ -73,10 +77,10 @@ interpreter.eval(`
     checkAge #([] this . age >= 18)
   }) ,
 
-  local : gabe $(Person 'Gabe' 23) ,
+  local : gabe $(Person 'Gabe ; will break?' 23) ,
   local : larry $(Person 'Larry' 15) ,
 
-  gabe . name = 'Gabe' ? 'PASS' 'FAIL---' ,
+  gabe . name = 'Gabe ; will break?' ? 'PASS' 'FAIL---' ,
   gabe checkAge = true ? 'PASS' 'FAIL---' ,
 
   larry . name = 'Larry' ? 'PASS' 'FAIL---' ,

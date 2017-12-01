@@ -8,6 +8,7 @@ const parserUtils = require('./parserUtils');
 const Bosc = P.createLanguage({
   expression: r => {
     return P.alt(
+      r.comment,
       r.true,
       r.false,
       r.null,
@@ -21,6 +22,11 @@ const Bosc = P.createLanguage({
       r.map
     );
   },
+
+  comment: () =>
+    P.regex(/.*/)
+      .wrap(P.string(';'), P.regex(/\n/).or(P.eof))
+      .map(data => ({ _comment: data })),
 
   symbol: () =>
     P.regexp(/[+\-*/.,<>=?:%a-zA-Z_-][=a-zA-Z0-9_-]*/)
@@ -106,6 +112,7 @@ const Bosc = P.createLanguage({
     r.expression
       .trim(P.optWhitespace)
       .many()
+      .map(astUtils.removeComments)
       .map(tableUtils.arrayToTable)
       .map(data => {
         data._context = 'execute';
