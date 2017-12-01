@@ -77,9 +77,6 @@ const Bosc = P.createLanguage({
       .wrap(P.string('$('), P.string(')'))
       .map(data => ({ type: 'executeFunction', data }))
       .map(astUtils.astToTable),
-  // .map(table => {
-  //   return vm.tableEval(table, [local], false);
-  // }),
 
   list: r =>
     r.expression

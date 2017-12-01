@@ -10,16 +10,6 @@ function eval(str, ns = [newLocal()]) {
 }
 
 function tableEval(table, ns = [newLocal()]) {
-  if (_.get(table, '_context') === 'root') {
-    let index = 0;
-    let curr;
-    let retVal = null;
-    while ((curr = table[index++])) {
-      retVal = tableEval(curr, ns);
-    }
-    return retVal;
-  }
-
   let index = 0;
   let curr = null;
 
@@ -54,7 +44,7 @@ function tableEval(table, ns = [newLocal()]) {
   while ((curr = table[index++])) {
     if (state === 0) {
       /**
-       * Consume object, 
+       * Consume object,
        *  if object is a symbol: lookup
        *  if object needs execution: execute
        *  if object needs resolution: resolve (map needs members to be executed, etc.)
@@ -107,7 +97,7 @@ function tableEval(table, ns = [newLocal()]) {
        *  if argument needs resolution: resolve
        *  if argument is a symbol: lookup
        *  otherwise consume raw argument
-       * 
+       *
        *  if all args consumed: execute
        *  otherwise: consume next arg
        */
@@ -136,7 +126,7 @@ function tableEval(table, ns = [newLocal()]) {
        * Execute method
        *  if it is a native method: call JS
        *  otherwise
-       *    add args to scope and execute 
+       *    add args to scope and execute
        */
       if (obj[method]._eval) {
         try {
