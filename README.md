@@ -113,7 +113,7 @@ x + 10
 
 `,` is another preloaded method that comes with every object in Bosc. It takes
 one argument -- and then returns that argument. This allows one to switch the
-object they are currently operating on. In the example below, after the
+object they are currently operating on. In the example above, after the
 statement `local : x 3`, I no longer want to call any methods on `local`.
 Therefore, by using the `,` method I can switch gears and make `x` my source
 object.
