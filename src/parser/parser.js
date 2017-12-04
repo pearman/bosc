@@ -1,5 +1,4 @@
 const P = require('parsimmon');
-const _ = require('lodash');
 
 const astUtils = require('./astUtils');
 const tableUtils = require('../types/utils/tableUtils');

@@ -18,7 +18,6 @@ function repl() {
     } catch (err) {
       console.log(err);
     }
-    //console.log(scope);
   }
 }
 
@@ -26,6 +25,12 @@ let argv = require('minimist')(process.argv.slice(2));
 if (argv['_'].length > 0) {
   fs.readFile(argv['_'][0], 'utf8', (err, prog) => {
     if (err) console.log(err);
-    else interpreter.eval(prog);
+    else {
+      try {
+        interpreter.eval(prog);
+      } catch (err) {
+        console.log(err);
+      }
+    }
   });
 } else repl();

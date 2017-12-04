@@ -1,0 +1,69 @@
+
+local : result #([result] 
+  result ? 'PASS' 'FAIL----' print) ,
+
+; Test basic function calls
+local : fun #([x]
+  x < 5 ? ; Comment to test grammar
+    $(fun (x + 1))
+    x 
+) ,
+
+$(result ($(fun -5) = 5)) ,
+
+$(result (
+  [1 2 3 4] 
+    map #([x] x * 4 / 2) 
+    isSameArrayAs [2 4 6 8])) ,
+
+; Numerical compariters
+$(result (1 < 2)) ,
+$(result (1 > 2 = false)) ,
+$(result (2 <= 2)) ,
+$(result (3 <= 2 = false)) ,
+$(result (3 >= 2)) ,
+$(result (1 >= 2 = false)) ,
+
+; Some simple iteration
+$(result (
+  5 times #([x] x + 1)
+    isSameArrayAs [1 2 3 4 5])) ,
+
+; Getters and setters
+local : x [1 2 3 4] ,
+$(result (x . 1 = 2)) ,
+
+
+; Metaprogramming
+local : fun #([x] x + 5) ,
+$(fun 5) = 10
+  ? 'PASS' 'FAIL---' print,
+local . fun :symbol 1 ('*' toSymbol) ,
+$(fun 5) = 25 
+  ? 'PASS' 'FAIL---' print ,
+
+; Nested functions
+local : countdown #([x]
+  x times #([y] x - y)
+  push 'BOOM'
+) ,
+$(result (
+  $(countdown 3)
+    isSameArrayAs [3 2 1 'BOOM'])) ,
+
+; Class-like example
+local : Person #([name age] {
+  name name
+  age age
+  checkAge #([] this . age >= 18)
+}) ,
+
+local : gabe $(Person 'Gabe ; will break?' 23) ,
+local : larry $(Person 'Larry' 15) ,
+
+; Testing comments in string? Can the grammar SURIVIVE!
+$(result (gabe . name = 'Gabe ; will break?')) ,
+$(result (gabe checkAge = true)) ,
+
+$(result (larry . name = 'Larry')) ,
+$(result (larry checkAge = false)) 

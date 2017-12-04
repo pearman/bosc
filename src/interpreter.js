@@ -31,6 +31,13 @@ function tableEval(table, ns = [newLocal()]) {
 
     let fun = argUtils.symInNamespace(method, ns);
 
+    if (_.isNil(fun)) {
+      throw {
+        err: `Error: Function "${method}" does not exist!`,
+        type: 'BoscError'
+      };
+    }
+
     index = 1;
     obj = { [method]: fun };
     args = [];
@@ -60,7 +67,7 @@ function tableEval(table, ns = [newLocal()]) {
 
       if (_.isNil(obj)) {
         throw {
-          err: `Error: Symbol '${curr}' does not exist!`,
+          err: `Error: Symbol "${curr}" does not exist!`,
           obj,
           type: 'BoscError'
         };
@@ -78,8 +85,14 @@ function tableEval(table, ns = [newLocal()]) {
       method = curr;
 
       if (_.isNil(obj[curr])) {
+        let methodName = method;
+        let bonusInfo = '';
+        if (_.isObject(methodName)) {
+          methodName = '[Table]';
+          bonusInfo = ', did you forget a comma?';
+        }
         throw {
-          err: `Error: Cannot find method '${method}'`,
+          err: `Error: Cannot find method "${methodName}"${bonusInfo}`,
           obj,
           type: 'BoscError'
         };
@@ -133,9 +146,8 @@ function tableEval(table, ns = [newLocal()]) {
           retVal = obj[method]._eval(obj, args, ns, tableEval, types);
         } catch (err) {
           throw {
-            err:
-              `Error: Failed to execute JS method '${method}'\n` +
-              JSON.stringify(err),
+            err: `Error: Failed to execute JS method "${method}"\n`,
+            jsErr: err,
             obj,
             type: 'BoscError'
           };
@@ -156,7 +168,7 @@ function tableEval(table, ns = [newLocal()]) {
 
   if (state === 2) {
     throw {
-      err: `Error: Expecting another argument for method '${method}'`,
+      err: `Error: Expecting another argument for method "${method}"`,
       obj,
       type: 'BoscError'
     };
@@ -183,7 +195,7 @@ function resolve(table, ns) {
 }
 
 function newLocal(withData = {}) {
-  let local = new (types.Table())(undefined, withData);
+  let local = new types.Local(undefined, withData);
   local.local = local;
   return local;
 }

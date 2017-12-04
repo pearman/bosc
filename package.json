@@ -7,7 +7,7 @@
     "bosc": "src/repl.js"
   },
   "scripts": {
-    "test": "node src/tests/tests.js",
+    "test": "node src/repl.js ./src/tests/tests.bosc",
     "repl": "node src/repl.js"
   },
   "author": "pearman",
