@@ -10,12 +10,14 @@ function astToTable(ast) {
   if (
     ast.type === 'list' ||
     ast.type === 'execute' ||
-    ast.type === 'executeFunction'
+    ast.type === 'executeFunction' ||
+    ast.type === 'infixFunction'
   ) {
     let context = '';
     if (ast.type === 'list') context = 'resolve';
     else if (ast.type === 'execute') context = 'execute';
     else if (ast.type === 'executeFunction') context = 'executeFunction';
+    else if (ast.type === 'infixFunction') context = 'infixFunction';
     let array = removeComments(ast.data);
     let data = _.reduce(
       array,

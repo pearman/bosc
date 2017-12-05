@@ -17,6 +17,7 @@ const Bosc = P.createLanguage({
       r.list,
       r.execute,
       r.executeFunction,
+      r.infixFunction,
       r.method,
       r.map
     );
@@ -81,6 +82,14 @@ const Bosc = P.createLanguage({
       .many()
       .wrap(P.string('$('), P.string(')'))
       .map(data => ({ type: 'executeFunction', data }))
+      .map(astUtils.astToTable),
+
+  infixFunction: r =>
+    r.expression
+      .trim(P.optWhitespace)
+      .many()
+      .wrap(P.string('`'), P.string('`'))
+      .map(data => ({ type: 'infixFunction', data }))
       .map(astUtils.astToTable),
 
   list: r =>

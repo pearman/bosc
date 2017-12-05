@@ -1,6 +1,6 @@
 
-local : result #([result] 
-  result ? 'PASS' 'FAIL----' print) ,
+local : result #([name result] 
+  result ? 'PASS' 'FAIL----' + '\t' + name print) ,
 
 ; Test basic function calls
 local : fun #([x]
@@ -9,45 +9,42 @@ local : fun #([x]
     x 
 ) ,
 
-$(result ($(fun -5) = 5)) ,
+$(result 'Basic Function Calls' ($(fun -5) = 5)) ,
 
-$(result (
+$(result 'Array Map and Comparison' (
   [1 2 3 4] 
     map #([x] x * 4 / 2) 
     isSameArrayAs [2 4 6 8])) ,
 
 ; Numerical compariters
-$(result (1 < 2)) ,
-$(result (1 > 2 = false)) ,
-$(result (2 <= 2)) ,
-$(result (3 <= 2 = false)) ,
-$(result (3 >= 2)) ,
-$(result (1 >= 2 = false)) ,
+$(result '<' (1 < 2)) ,
+$(result '>' (1 > 2 = false)) ,
+$(result '<=' (2 <= 2)) ,
+$(result '<= (false)' (3 <= 2 = false)) ,
+$(result '>=' (3 >= 2)) ,
+$(result '>= (false)' (1 >= 2 = false)) ,
 
 ; Some simple iteration
-$(result (
+$(result 'Times' (
   5 times #([x] x + 1)
     isSameArrayAs [1 2 3 4 5])) ,
 
-; Getters and setters
+; Getters 
 local : x [1 2 3 4] ,
-$(result (x . 1 = 2)) ,
-
+$(result 'Getters' (x . 1 = 2)) ,
 
 ; Metaprogramming
 local : fun #([x] x + 5) ,
-$(fun 5) = 10
-  ? 'PASS' 'FAIL---' print,
+$(result 'Metaprogramming 1' ($(fun 5) = 10)) ,
 local . fun :symbol 1 ('*' toSymbol) ,
-$(fun 5) = 25 
-  ? 'PASS' 'FAIL---' print ,
+$(result 'Metaprogramming 2' ($(fun 5) = 25)) , 
 
 ; Nested functions
 local : countdown #([x]
   x times #([y] x - y)
   push 'BOOM'
 ) ,
-$(result (
+$(result 'Countdown Function' (
   $(countdown 3)
     isSameArrayAs [3 2 1 'BOOM'])) ,
 
@@ -62,8 +59,12 @@ local : gabe $(Person 'Gabe ; will break?' 23) ,
 local : larry $(Person 'Larry' 15) ,
 
 ; Testing comments in string? Can the grammar SURIVIVE!
-$(result (gabe . name = 'Gabe ; will break?')) ,
-$(result (gabe checkAge = true)) ,
+$(result 'Class Lookup 1' (gabe . name = 'Gabe ; will break?')) ,
+$(result 'Class Method Call 1' (gabe checkAge = true)) ,
 
-$(result (larry . name = 'Larry')) ,
-$(result (larry checkAge = false)) 
+$(result 'Class Lookup 2' (larry . name = 'Larry')) ,
+$(result 'Class Method Call 2' (larry checkAge = false)) ,
+
+; Testing infix functions
+local : mul #([x y] x * y) ,
+$(result 'Infix' (5 `mul` 10 = 50))

@@ -21,6 +21,8 @@ function tableEval(table, ns = [newLocal()]) {
   let args = [];
   let retVal = null;
 
+  let resolvedInfixFunction = null;
+
   if (_.get(table, '_context') === 'executeFunction') {
     /**
      * Function special form ($(fun x y) special form)
@@ -84,24 +86,38 @@ function tableEval(table, ns = [newLocal()]) {
       if (state === 0.5) obj = retVal;
       method = curr;
 
-      if (_.isNil(obj[curr])) {
-        let methodName = method;
-        let bonusInfo = '';
-        if (_.isObject(methodName)) {
-          methodName = '[Table]';
-          bonusInfo = ', did you forget a comma?';
+      if (_.get(method, '_context') === 'infixFunction') {
+        resolvedInfixFunction = tableEval(method, ns);
+        if (!_.has(resolvedInfixFunction, 'args')) {
+          throw {
+            err: `Error: Not a valid infix method!`,
+            method,
+            type: 'BoscError'
+          };
         }
-        throw {
-          err: `Error: Cannot find method "${methodName}"${bonusInfo}`,
-          obj,
-          type: 'BoscError'
-        };
-      }
+        argsExpected = resolvedInfixFunction.args;
+        argsNum = tableUtils.arrLength(argsExpected);
+        args = [obj];
+      } else {
+        if (_.isNil(obj[curr])) {
+          let methodName = method;
+          let bonusInfo = '';
+          if (_.isObject(methodName)) {
+            methodName = '[Table]';
+            bonusInfo = ', did you forget a comma?';
+          }
+          throw {
+            err: `Error: Cannot find method "${methodName}"${bonusInfo}`,
+            obj,
+            type: 'BoscError'
+          };
+        }
 
-      argsExpected = obj[curr].args;
-      argsNum = tableUtils.arrLength(obj[curr].args);
-      args = [];
-      if (argsNum === 0) state = 3;
+        argsExpected = obj[curr].args;
+        argsNum = tableUtils.arrLength(argsExpected);
+        args = [];
+      }
+      if (argsNum === args.length) state = 3;
       else state = 2;
     } else if (state === 2) {
       /**
@@ -141,9 +157,12 @@ function tableEval(table, ns = [newLocal()]) {
        *  otherwise
        *    add args to scope and execute
        */
-      if (obj[method]._eval) {
+      let methodObj = _.isNull(resolvedInfixFunction)
+        ? obj[method]
+        : resolvedInfixFunction;
+      if (methodObj._eval) {
         try {
-          retVal = obj[method]._eval(obj, args, ns, tableEval, types);
+          retVal = methodObj._eval(obj, args, ns, tableEval, types);
         } catch (err) {
           throw {
             err: `Error: Failed to execute JS method "${method}"\n`,
@@ -160,8 +179,9 @@ function tableEval(table, ns = [newLocal()]) {
           argObj[arg] = args[index - 1];
         }
         argObj['this'] = obj;
-        retVal = tableEval(obj[method], ns.concat([newLocal(argObj)]));
+        retVal = tableEval(methodObj, ns.concat([newLocal(argObj)]));
       }
+      resolvedInfixFunction = null;
       state = 0.5;
     }
   }
