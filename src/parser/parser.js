@@ -29,7 +29,7 @@ const Bosc = P.createLanguage({
       .map(data => ({ _comment: data })),
 
   symbol: () =>
-    P.regexp(/[+\-*/.,<>=?:%a-zA-Z_-][=a-zA-Z0-9_-]*/)
+    P.regexp(/[+\-*/.,!<>=?:%a-zA-Z_-][=a-zA-Z0-9_-]*/)
       .map(data => ({ type: 'symbol', data }))
       .map(astUtils.astToTable)
       .desc('symbol'),

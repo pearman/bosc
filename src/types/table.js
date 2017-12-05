@@ -7,7 +7,9 @@ let methods = {
   '=': {
     args: argUtils.args('object'),
     _eval: (self, args, ns, tableEval, types) => {
-      return new types.Boolean(_.isEqual(self, args[0]));
+      let omit = table =>
+        _.omitBy(table, (value, key) => _.startsWith(key, '_'));
+      return new types.Boolean(_.isEqual(omit(self), omit(args[0])));
     }
   },
   isSameArrayAs: {
@@ -124,9 +126,25 @@ let methods = {
   push: {
     args: argUtils.args('value'),
     _eval: (self, args, ns, tableEval, types) => {
-      let newTable = _.cloneDeep(self);
-      tableUtils.push(newTable, args[0]);
-      return new (types.Table())(undefined, newTable);
+      return tableUtils.push(self, args[0]);
+    }
+  },
+  concat: {
+    args: argUtils.args('array'),
+    _eval: (self, args, ns, tableEval, types) => {
+      return tableUtils.concat(self, args[0]);
+    }
+  },
+  join: {
+    args: argUtils.args('string'),
+    _eval: (self, args, ns, tableEval, types) => {
+      return new types.String(tableUtils.join(self, args[0].value));
+    }
+  },
+  merge: {
+    args: argUtils.args('table'),
+    _eval: (self, args, ns, tableEval, types) => {
+      return tableUtils.merge(self, args[0]);
     }
   }
 };

@@ -67,4 +67,13 @@ $(result 'Class Method Call 2' (larry checkAge = false)) ,
 
 ; Testing infix functions
 local : mul #([x y] x * y) ,
-$(result 'Infix' (5 `mul` 10 = 50))
+$(result 'Infix 1' (5 `mul` 10 = 50)) , 
+
+local : inc #([x] x + 1) ,
+$(result 'Infix 2' (5 `inc` = 6)) , 
+
+$(result 'Merge' ({a 1} merge {b 2} = {a 1 b 2})) ,
+$(result 'Concat' ([1 2] concat [3] = [1 2 3])) ,
+$(result 'Join' ([1 2 3] join ' ' = '1 2 3')) ,
+
+$(result 'Factorial' (5 ! = 120))
