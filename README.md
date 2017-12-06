@@ -28,25 +28,26 @@
 > ```
 
 #### Pascals Triangle
+
 ```
-local : choose #([n k] 
+local : choose #([n k]
   n ! / (k ! * ((n - k) !))) ,
 
-local : pascals #([rows] 
-  rows times #([n] 
+local : pascals #([rows]
+  rows times #([n]
     (n + 1) times #([k] n `choose` k))) ,
 
-$(pascals 5) map #([x] x join ' ') join '\n' print
+$(pascals 6) map #([x] x join ' ') join '\n' print
 ```
 
->```
->1
->1 1
->1 2 1
->1 3 3 1
->1 4 6 4 1
->1 5 10 10 5 1
->```
+> ```
+> 1
+> 1 1
+> 1 2 1
+> 1 3 3 1
+> 1 4 6 4 1
+> 1 5 10 10 5 1
+> ```
 
 ## Objects (or Tables)
 
@@ -163,7 +164,5 @@ $(func 5) ; Same result as "local fun 5"
 > ```
 > 6
 > ```
-
-
 
 ### To be continued . . .
