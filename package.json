@@ -13,10 +13,10 @@
   "author": "pearman",
   "license": "ISC",
   "dependencies": {
+    "ellipsize": "0.0.3",
+    "inquirer": "^4.0.1",
     "lodash": "^4.17.4",
     "minimist": "^1.2.0",
-    "parsimmon": "^1.6.2",
-    "prompt-sync": "^4.1.5",
-    "prompt-sync-history": "^1.0.1"
+    "parsimmon": "^1.6.2"
   }
 }

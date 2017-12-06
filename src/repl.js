@@ -3,21 +3,37 @@ const fs = require('fs');
 const interpreter = require('./interpreter');
 const tableUtils = require('./types/utils/tableUtils');
 
-let prompt = require('prompt-sync')({
-  history: require('prompt-sync-history')(),
-  sigint: false
-});
+const chalk = require('chalk');
+const inquirer = require('inquirer');
+inquirer.registerPrompt('command', require('./prompt/command.js'));
 
-function repl() {
+async function repl() {
   let scope = interpreter.newScope();
-  while (true) {
-    let prog = prompt('bosc$ ');
-    if (prog === null) break;
-    try {
-      tableUtils.prettyPrint(interpreter.eval(prog, scope));
-    } catch (err) {
-      console.log(err);
-    }
+  while (1) {
+    await inquirer
+      .prompt([
+        {
+          type: 'command',
+          name: 'prog',
+          message: '$',
+          prefix: chalk.green.bold('bosc'),
+          context: 0
+        }
+      ])
+      .then(result => {
+        return new Promise((resolve, reject) => {
+          try {
+            resolve(
+              tableUtils.prettyPrint(interpreter.eval(result.prog, scope))
+            );
+          } catch (err) {
+            reject(err);
+          }
+        });
+      })
+      .catch(err => {
+        console.error(err);
+      });
   }
 }
 
