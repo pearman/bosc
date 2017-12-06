@@ -13,6 +13,7 @@
   "author": "pearman",
   "license": "ISC",
   "dependencies": {
+    "chalk": "^2.3.0",
     "ellipsize": "0.0.3",
     "inquirer": "^4.0.1",
     "lodash": "^4.17.4",
