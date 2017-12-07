@@ -1,6 +1,6 @@
 {
   "name": "bosc",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "A small, experimental language.",
   "main": "src/index.js",
   "bin": {
