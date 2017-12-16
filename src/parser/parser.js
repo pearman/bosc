@@ -13,6 +13,7 @@ const Bosc = P.createLanguage({
       r.null,
       r.number,
       r.symbol,
+      r.keyword,
       r.string,
       r.list,
       r.execute,
@@ -29,10 +30,16 @@ const Bosc = P.createLanguage({
       .map(data => ({ _comment: data })),
 
   symbol: () =>
-    P.regexp(/[+\-*/.,!<>=?:%a-zA-Z_-][=a-zA-Z0-9_-]*/)
+    P.regexp(/[+\-*/.,!<>=?%a-zA-Z_-][=a-zA-Z0-9_-]*/)
       .map(data => ({ type: 'symbol', data }))
       .map(astUtils.astToTable)
       .desc('symbol'),
+
+  keyword: r =>
+    P.seq(P.string(':'), r.symbol)
+      .map(data => ({ type: 'keyword', data: data[1] }))
+      .map(astUtils.astToTable)
+      .desc('keyword'),
 
   string: () =>
     parserUtils

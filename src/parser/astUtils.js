@@ -64,6 +64,9 @@ function astToTable(ast) {
   if (ast.type === 'symbol') {
     return ast.data;
   }
+  if (ast.type === 'keyword') {
+    return new types.Keyword(ast.data);
+  }
   if (ast.type === 'number') {
     return new types.Number(ast.data);
   }

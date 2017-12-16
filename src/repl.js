@@ -1,11 +1,19 @@
 #!/usr/bin/env node
 const fs = require('fs');
-const interpreter = require('./interpreter');
+const interpreter = require('./interpreter.1');
 const tableUtils = require('./types/utils/tableUtils');
 
 const chalk = require('chalk');
 const inquirer = require('inquirer');
 inquirer.registerPrompt('command', require('./prompt/command.js'));
+
+// let done = false;
+// async function test() {
+//   let result = await interpreter.eval(`2 + 2`);
+//   console.log(result);
+// }
+
+// test().catch(err => console.log(err));
 
 async function repl() {
   let scope = interpreter.newScope();
@@ -20,16 +28,10 @@ async function repl() {
           context: 0
         }
       ])
-      .then(result => {
-        return new Promise((resolve, reject) => {
-          try {
-            resolve(
-              tableUtils.prettyPrint(interpreter.eval(result.prog, scope))
-            );
-          } catch (err) {
-            reject(err);
-          }
-        });
+      .then(async result => {
+        return interpreter
+          .eval(result.prog, scope)
+          .then(result => tableUtils.prettyPrint(result));
       })
       .catch(err => {
         console.error(err);
