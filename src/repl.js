@@ -31,7 +31,8 @@ async function repl() {
       .then(async result => {
         return interpreter
           .eval(result.prog, scope)
-          .then(result => tableUtils.prettyPrint(result));
+          .map(out => tableUtils.prettyPrint(out))
+          .toPromise();
       })
       .catch(err => {
         console.error(err);
@@ -45,7 +46,7 @@ if (argv['_'].length > 0) {
     if (err) console.log(err);
     else {
       try {
-        interpreter.eval(prog);
+        interpreter.eval(prog).subscribe();
       } catch (err) {
         console.log(err);
       }

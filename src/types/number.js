@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const rx = require('rxjs');
 const Table = require('./table');
 const argUtils = require('./utils/argUtils');
 const tableUtils = require('./utils/tableUtils');
@@ -56,14 +57,16 @@ let methods = {
     args: argUtils.args('function'),
     _eval: (self, args, ns, tableEval, types) => {
       let output = _.times(self.value, i => {
-        if (_.has(args[0], 'value')) return tableUtils.clone(args[0]);
+        if (_.has(args[0], 'value'))
+          return rx.Observable.of(tableUtils.clone(args[0]));
         return tableEval(
           args[0],
           ns.concat([{ [args[0].args[0]]: new types.Number(i) }])
         );
       });
-      let result = tableUtils.arrayToTable(output);
-      return new (types.Table())(undefined, result);
+      return rx.Observable.forkJoin(...output)
+        .map(tableUtils.arrayToTable)
+        .map(result => new (types.Table())(undefined, result));
     }
   }
 };

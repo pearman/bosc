@@ -1,10 +1,12 @@
 
-local : result #([name result] 
-  result ? 'PASS' 'FAIL----' + '\t' + name print) ,
+'Running Tests' print ,
+
+local :result #([name result]
+  result isTrue 'PASS' 'FAIL----' + '\t' + name print) ,
 
 ; Test basic function calls
-local : fun #([x]
-  x < 5 ? ; Comment to test grammar
+local :fun #([x]
+  x < 5 isTrue ; Comment to test grammar
     $(fun (x + 1))
     x 
 ) ,
@@ -30,17 +32,17 @@ $(result 'Times' (
     isSameArrayAs [1 2 3 4 5])) ,
 
 ; Getters 
-local : x [1 2 3 4] ,
-$(result 'Getters' (x . 1 = 2)) ,
+local :x [1 2 3 4] ,
+$(result 'Getters' (x ?1 = 2)) ,
 
 ; Metaprogramming
-local : fun #([x] x + 5) ,
+local :fun #([x] x + 5) ,
 $(result 'Metaprogramming 1' ($(fun 5) = 10)) ,
-local . fun :symbol 1 ('*' toSymbol) ,
+local ?fun set 1 :* ,
 $(result 'Metaprogramming 2' ($(fun 5) = 25)) , 
 
 ; Nested functions
-local : countdown #([x]
+local :countdown #([x]
   x times #([y] x - y)
   push 'BOOM'
 ) ,
@@ -49,27 +51,27 @@ $(result 'Countdown Function' (
     isSameArrayAs [3 2 1 'BOOM'])) ,
 
 ; Class-like example
-local : Person #([name age] {
+local :Person #([name age] {
   name name
   age age
-  checkAge #([] this . age >= 18)
+  checkAge #([] this ?age >= 18)
 }) ,
 
-local : gabe $(Person 'Gabe ; will break?' 23) ,
-local : larry $(Person 'Larry' 15) ,
+local :gabe $(Person 'Gabe ; will break?' 23) ,
+local :larry $(Person 'Larry' 15) ,
 
 ; Testing comments in string? Can the grammar SURIVIVE!
-$(result 'Class Lookup 1' (gabe . name = 'Gabe ; will break?')) ,
+$(result 'Class Lookup 1' (gabe ?name = 'Gabe ; will break?')) ,
 $(result 'Class Method Call 1' (gabe checkAge = true)) ,
 
-$(result 'Class Lookup 2' (larry . name = 'Larry')) ,
+$(result 'Class Lookup 2' (larry ?name = 'Larry')) ,
 $(result 'Class Method Call 2' (larry checkAge = false)) ,
 
 ; Testing infix functions
-local : mul #([x y] x * y) ,
+local :mul #([x y] x * y) ,
 $(result 'Infix 1' (5 `mul` 10 = 50)) , 
 
-local : inc #([x] x + 1) ,
+local :inc #([x] x + 1) ,
 $(result 'Infix 2' (5 `inc` = 6)) , 
 
 $(result 'Merge' ({a 1} merge {b 2} = {a 1 b 2})) ,

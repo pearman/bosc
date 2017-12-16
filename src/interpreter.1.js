@@ -9,8 +9,8 @@ const errors = require('./errors/errors');
 
 function eval(str, ns = [newLocal()]) {
   let output = parser.tryParse(str);
-  console.log(output);
-  return tableEval(output, ns).toPromise();
+  //console.log(output);
+  return tableEval(output, ns).last();
 }
 
 function tableEval(table, ns = [newLocal()]) {
@@ -18,19 +18,24 @@ function tableEval(table, ns = [newLocal()]) {
   if (table._context === 'executeFunction') {
     return handleContext(tArr.shift(), ns, undefined, true)
       .map(method => ({ root: {}, method }))
-      .mergeMap(statement =>
-        rx.Observable.forkJoin(
+      .mergeMap(statement => {
+        if (tArr.length <= 0)
+          return rx.Observable.of(_.assign(statement, { args: [] }));
+        return rx.Observable.forkJoin(
           ..._.map(tArr, arg => handleContext(arg, ns, statement))
-        ).map(args => _.assign(statement, { args }))
-      )
+        ).map(args => _.assign(statement, { args }));
+      })
       .mergeMap(statement => runStatement(statement, ns));
   } else {
     return rx.Observable.from(tArr)
-        .mergeScan((acc, val) => {
-          return buildStatement(val, acc, ns);
-        })
-        .take(tArr.length)
-        .map(result => result.root);
+      .mergeScan((acc, val) => {
+        return buildStatement(val, acc, ns);
+      })
+      .last()
+      .map(result => {
+        if (result) return result.root;
+        return null;
+      });
   }
 }
 
@@ -39,9 +44,9 @@ function buildStatement(value, lastStatement = {}, ns = [newLocal()]) {
     rx.Observable.of({
       value
     })
-      //.do(data => console.log('token', data))
+      //.do(data => //console.log('token', data))
       .mergeMap(({ value }) => handleContext(value, ns, lastStatement))
-      //.do(data => console.log('resolved', data))
+      //.do(data => //console.log('resolved', data))
       .map(value => {
         let acc = lastStatement;
         if (!acc.args) acc.args = [];
@@ -55,7 +60,7 @@ function buildStatement(value, lastStatement = {}, ns = [newLocal()]) {
         return acc;
       })
       .mergeMap(statement => {
-        console.log(statement);
+        //console.log(statement);
         if (
           statement.root &&
           statement.method &&
@@ -71,7 +76,7 @@ function buildStatement(value, lastStatement = {}, ns = [newLocal()]) {
 }
 
 function handleContext(table, ns, lastStatement, getMethodFromLocal = false) {
-  console.log('handling context of', table);
+  //console.log('handling context of', table);
   if (table instanceof rx.Observable) return table;
   return rx.Observable.of(table).mergeMap(table => {
     if (_.isString(table)) {
@@ -81,13 +86,15 @@ function handleContext(table, ns, lastStatement, getMethodFromLocal = false) {
         !lastStatement.method &&
         !getMethodFromLocal
       ) {
+        //console.log(table, lastStatement);
         return rx.Observable.of(lastStatement.root[table]);
       } else {
         return rx.Observable.of(argUtils.symInNamespace(table, ns));
       }
     } else if (
-      _.get(table, '_context') === 'execute' ||
-      _.get(table, '_context') === 'executeFunction'
+      (_.get(table, '_context') === 'execute' ||
+        _.get(table, '_context') === 'executeFunction') &&
+      !_.get(lastStatement, ['method', '_doNotEvalArgs'], false)
     ) {
       // If execution is required -- execute
       return tableEval(table, ns);
@@ -95,41 +102,41 @@ function handleContext(table, ns, lastStatement, getMethodFromLocal = false) {
       // If the data needs to be resolved -- resolve
       return resolve(table, ns);
     }
-    console.log(table);
+    //console.log(table);
     return rx.Observable.of(table);
   });
 }
 
 function resolve(table, ns) {
-  rx.Observable.from(_.toPairs(table))
-    .mergeMap(([key, val]) => {
-      if (_.get(val, '_context') === 'execute') {
-        return tableEval(val, ns).map(result => [key, result]);
-      }
-      if (_.isString(val) && !_.startsWith('_', key)) {
-        return rx.Observable.of([key, argUtils.symInNamespace(val, ns)]);
-      }
-      if (_.get(val, '_context') === 'resolve') {
-        return resolve(val, ns).map(result => [key, result]);
-      }
-      return rx.Observable.of(val);
-    })
-    .toArray()
-    .map((acc, resolvedData) => {
-      let result = _.reduce(
-        resolvedData,
-        (acc, [key, val]) => {
-          acc[key] = val;
-          return acc;
-        },
-        {}
-      );
-      return new (types.Table())(undefined, result);
-    });
+  //console.log('resolving', table);
+  return (
+    rx.Observable.from(_.toPairs(table))
+      .filter(([key]) => !_.startsWith(key, '_'))
+      //.do(//console.log)
+      .mergeMap(([key, val]) => {
+        if (_.get(val, '_context') === 'execute') {
+          return tableEval(val, ns).map(result => [key, result]);
+        }
+        if (_.isString(val) && !_.startsWith('_', key)) {
+          return rx.Observable.of([key, argUtils.symInNamespace(val, ns)]);
+        }
+        if (_.get(val, '_context') === 'resolve') {
+          return resolve(val, ns).map(result => [key, result]);
+        }
+        return rx.Observable.of([key, val]);
+      })
+      .toArray()
+      //.do(//console.log)
+      .map(resolvedData => {
+        let result = _.fromPairs(resolvedData);
+        //console.log(result);
+        return new (types.Table())(undefined, result);
+      })
+  );
 }
 
 function runStatement(statement, ns) {
-  console.log('running statement', statement);
+  //console.log('running statement', statement);
   let retVal = null;
   if (statement.method._eval) {
     // If native JS method
@@ -139,7 +146,8 @@ function runStatement(statement, ns) {
         statement.args,
         ns,
         tableEval,
-        types
+        types,
+        statement.method
       );
     } catch (err) {
       errors.failedToExecuteJSMethod(statement.root, statement.method, err);
@@ -155,7 +163,7 @@ function runStatement(statement, ns) {
     argObj['this'] = statement.root;
     retVal = tableEval(statement.method, ns.concat([newLocal(argObj)]));
   }
-  console.log('retVal', retVal);
+  //console.log('retVal', retVal);
   if (retVal instanceof rx.Observable) {
     return retVal;
   } else if (retVal instanceof Promise) {

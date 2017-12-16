@@ -4,7 +4,7 @@ const argUtils = require('./utils/argUtils');
 const tableUtils = require('./utils/tableUtils');
 
 let methods = {
-  '?': {
+  isTrue: {
     args: argUtils.args('ifTrue', 'ifFalse'),
     _doNotEvalArgs: true,
     _eval: (self, args, ns, tableEval) => {

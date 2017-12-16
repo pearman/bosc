@@ -1,4 +1,5 @@
 const P = require('parsimmon');
+const _ = require('lodash');
 
 const astUtils = require('./astUtils');
 const tableUtils = require('../types/utils/tableUtils');
@@ -30,14 +31,18 @@ const Bosc = P.createLanguage({
       .map(data => ({ _comment: data })),
 
   symbol: () =>
-    P.regexp(/[+\-*/.,!<>=?%a-zA-Z_-][=a-zA-Z0-9_-]*/)
+    P.regexp(/[+\-*/.,!<>=%a-zA-Z_-][=a-zA-Z0-9_-]*/)
       .map(data => ({ type: 'symbol', data }))
       .map(astUtils.astToTable)
       .desc('symbol'),
 
   keyword: r =>
-    P.seq(P.string(':'), r.symbol)
-      .map(data => ({ type: 'keyword', data: data[1] }))
+    P.seq(P.oneOf(':?'), P.alt(r.symbol, r.number))
+      .map(data => ({
+        type: 'keyword',
+        data: _.get(data[1], 'value', data[1]),
+        _keywordType: data[0] === ':' ? 'set' : 'get'
+      }))
       .map(astUtils.astToTable)
       .desc('keyword'),
 

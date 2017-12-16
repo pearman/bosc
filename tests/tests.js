@@ -12,7 +12,9 @@ const interpreter = require('../src/interpreter.1');
 //     $(fun -5) = 5 ? 'PASS' 'FAIL----'
 //   `);
 // Map
-interpreter.eval(`
+interpreter
+  .eval(
+    `
     ; Starting comment
     [1 2 3 4]
       map #([x] x * 4 / 2)
@@ -21,23 +23,33 @@ interpreter.eval(`
       print
 
     ; Ending comment
-  `);
-// // Numerical Comparison
-// interpreter.eval(`
+  `
+  )
+  .subscribe();
+// Numerical Comparison
+// interpreter
+//   .eval(
+//     `
 //     1 < 2 ? 'PASS' 'FAIL' print ,
 //     1 > 2 ? 'FAIL----' 'PASS' print ,
 //     2 <= 2 ? 'PASS' 'FAIL----' print ,
 //     3 <= 2 ? 'FAIL----' 'PASS' print ,
 //     2 >= 2 ? 'PASS' 'FAIL----' print ,
 //     2 >= 3 ? 'FAIL----' 'PASS' print
-//   `);
-// // Simple iteration
-// interpreter.eval(`
-//     5 times #([x] x + 1)
-//       isSameArrayAs [1 2 3 4 5]
-//       ? 'PASS' 'FAIL----'
-//       print
-//   `);
+//   `
+//   )
+//   .subscribe();
+// Simple iteration
+interpreter
+  .eval(
+    `
+    5 times #([x] x + 1)
+      isSameArrayAs [1 2 3 4 5]
+      ? 'PASS' 'FAIL----'
+      print
+  `
+  )
+  .subscribe();
 
 // // Getters and setters
 // interpreter.eval(`

@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const rx = require('rxjs');
 const argUtils = require('./utils/argUtils');
 const tableUtils = require('./utils/tableUtils');
 //const Boolean = require('./boolean');
@@ -35,7 +36,9 @@ let methods = {
     args: argUtils.args('key', 'value'),
     //_doNotResolveArgs: true,
     _eval: (self, args, ns) => {
-      _.set(self, _.get(args[0], 'value', args[0]), args[1]);
+      if (_.get(args[1], 'isKeyword', false))
+        _.set(self, _.get(args[0], 'value', args[0]), _.get(args[1], 'value'));
+      else _.set(self, _.get(args[0], 'value', args[0]), args[1]);
       return self;
     }
   },
@@ -84,16 +87,16 @@ let methods = {
   map: {
     args: argUtils.args('function'),
     _eval: (self, args, ns, tableEval, types) => {
-      let index = 0;
-      let curr;
-      let newArr = {};
-      while ((curr = self[index++])) {
-        newArr[index - 1] = tableEval(
-          args[0],
-          ns.concat([{ [args[0].args[0]]: curr }])
-        );
-      }
-      return new (types.Table())(undefined, newArr);
+      return rx.Observable.from(_.toPairs(self))
+        .filter(([key]) => !_.isNaN(_.toNumber(key)))
+        .mergeMap(([key, val]) =>
+          tableEval(args[0], ns.concat([{ [args[0].args[0]]: val }])).map(
+            result => [key, result]
+          )
+        )
+        .toArray()
+        .map(_.fromPairs)
+        .map(newArr => new (types.Table())(undefined, newArr));
     }
   },
   reduce: {

@@ -65,7 +65,11 @@ function astToTable(ast) {
     return ast.data;
   }
   if (ast.type === 'keyword') {
-    return new types.Keyword(ast.data);
+    if (ast._keywordType === 'get') {
+      return new types.Keyword.Get(ast.data);
+    } else {
+      return new types.Keyword.Set(ast.data);
+    }
   }
   if (ast.type === 'number') {
     return new types.Number(ast.data);
@@ -75,6 +79,9 @@ function astToTable(ast) {
   }
   if (ast.type === 'boolean') {
     return new types.Boolean(ast.data);
+  }
+  if (ast.type === 'null') {
+    return null;
   }
   return ast;
 }
