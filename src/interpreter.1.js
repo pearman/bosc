@@ -39,13 +39,11 @@ function tableEval(table, ns = [newLocal()]) {
   }
 }
 
-function buildStatement(value, lastStatement = {}, ns = [newLocal()]) {
+function buildStatement(valueIn, lastStatement = {}, ns = [newLocal()]) {
   return (
-    rx.Observable.of({
-      value
-    })
+    rx.Observable.of(valueIn)
       //.do(data => //console.log('token', data))
-      .mergeMap(({ value }) => handleContext(value, ns, lastStatement))
+      .mergeMap(value => handleContext(value, ns, lastStatement))
       //.do(data => //console.log('resolved', data))
       .map(value => {
         let acc = lastStatement;
@@ -54,6 +52,9 @@ function buildStatement(value, lastStatement = {}, ns = [newLocal()]) {
           acc.root = value;
         } else if (!acc.method) {
           acc.method = value;
+          if (_.get(valueIn, '_context') === 'infixFunction') {
+            acc.args.push(acc.root);
+          }
         } else if (acc.args.length < tableUtils.arrLength(acc.method.args)) {
           acc.args.push(value);
         }
@@ -93,7 +94,8 @@ function handleContext(table, ns, lastStatement, getMethodFromLocal = false) {
       }
     } else if (
       (_.get(table, '_context') === 'execute' ||
-        _.get(table, '_context') === 'executeFunction') &&
+        _.get(table, '_context') === 'executeFunction' ||
+        _.get(table, '_context') === 'infixFunction') &&
       !_.get(lastStatement, ['method', '_doNotEvalArgs'], false)
     ) {
       // If execution is required -- execute

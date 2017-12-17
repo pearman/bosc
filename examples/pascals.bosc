@@ -1,8 +1,9 @@
-local : choose #([n k] 
+local :choose #([n k]
   n ! / (k ! * ((n - k) !))) ,
 
-local : pascals #([rows] 
-  rows times #([n] 
-    (n + 1) times #([k] n `choose` k))) ,
+local :pascals #([rows]
+  rows times
+    #([n] (n + 1) times
+        #([k] n `choose` k))) ,
 
 $(pascals 6) map #([x] x join ' ') join '\n' print
