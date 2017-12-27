@@ -4,8 +4,10 @@ const argUtils = require('./utils/argUtils');
 
 let methods = {
   require: {
-    args: argUtils.args('symbol', 'lib'),
-    _eval: (self, args, ns, tableEval, types) => {}
+    args: argUtils.args('lib'),
+    _eval: (self, args, ns, tableEval, types) => {
+      return require(process.cwd() + '/' + _.get(args[0], 'value'));
+    }
   }
 };
 

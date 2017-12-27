@@ -20,10 +20,10 @@ let getMode = {
 };
 
 let methods = {
-  isKeyword: {
+  toSymbol: {
     args: argUtils.args(),
     _eval: (self, args, ns, tableEval, types) => {
-      return new types.Boolean(true);
+      return self.value;
     }
   }
 };

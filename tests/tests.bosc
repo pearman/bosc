@@ -38,7 +38,7 @@ $(result 'Getters' (x ?1 = 2)) ,
 ; Metaprogramming
 local :fun #([x] x + 5) ,
 $(result 'Metaprogramming 1' ($(fun 5) = 10)) ,
-local ?fun set 1 :* ,
+fun :1 (:* toSymbol),
 $(result 'Metaprogramming 2' ($(fun 5) = 25)) , 
 
 ; Nested functions

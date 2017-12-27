@@ -32,23 +32,6 @@ let methods = {
       return new types.Boolean(value);
     }
   },
-  set: {
-    args: argUtils.args('key', 'value'),
-    //_doNotResolveArgs: true,
-    _eval: (self, args, ns) => {
-      if (_.get(args[1], 'isKeyword', false))
-        _.set(self, _.get(args[0], 'value', args[0]), _.get(args[1], 'value'));
-      else _.set(self, _.get(args[0], 'value', args[0]), args[1]);
-      return self;
-    }
-  },
-  '.': {
-    args: argUtils.args('key'),
-    _doNotResolveArgs: true,
-    _eval: (self, args, ns) => {
-      return _.get(self, _.get(args[0], 'value', args[0]), null);
-    }
-  },
   ',': {
     args: argUtils.args('object'),
     _eval: (self, args, ns) => args[0]
